@@ -11,7 +11,7 @@ from django.views.generic import ListView
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 import urllib.parse
-from web.models import Blog, Contactmessage
+from web.models import Blog, Contactmessage, Course, CourseCategory
 from web.forms import ContactForm
 from orders.models import Wishlist
 from orders.forms import WhatsAppOrderForm
@@ -29,18 +29,20 @@ class indexView(TemplateView):
     template_name = "web/home/index.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["categories"] = Category.objects.filter(status='Published')
-        context["subcategories"] = Subcategory.objects.filter(active=True)
-        context["product_type"] = Producttype.objects.all()
-        products = Product.objects.filter(is_active=True)
-        context["brands"] = Brand.objects.all()
-        context["popular_products"] = products.filter(is_popular=True)
-        context["best_seller_products"] = products.filter(is_best_seller=True)
+        context["blogs"] = Blog.objects.filter(status=True).order_by('order', '-created_at')[:4]
+        context["course_categories"] = CourseCategory.objects.all()
+        context["courses"] = Course.objects.filter(status=True).order_by('-created_at')[:10]
+        # context["categories"] = Category.objects.filter(status='Published')
+        # context["subcategories"] = Subcategory.objects.filter(active=True)
+        # context["product_type"] = Producttype.objects.all()
+        # products = Product.objects.filter(is_active=True)
+        # context["brands"] = Brand.objects.all()
+        # context["popular_products"] = products.filter(is_popular=True)
+        # context["best_seller_products"] = products.filter(is_best_seller=True)
         wishlist_count = Wishlist.objects.filter(user=self.request.user.id).count()
-        context["blogs"] = Blog.objects.filter(status=True).order_by('-created_at')[:4]
         context["wishlist_count"] = wishlist_count
         # context["recent_products"] = products.order_by('-created_at')[:10]
-        context["recent_products"] = products.order_by('-id')[:10]
+        # context["recent_products"] = products.order_by('-id')[:10]
         if self.request.user.is_authenticated:
                 context["wishlist_count"] = Wishlist.objects.filter(
                     user=self.request.user
@@ -337,3 +339,14 @@ class BlogDetailView(DetailView):
     model = Blog
     template_name = 'blog/blog_detail.html'
     context_object_name = 'blog'
+
+class CourseCheckoutView(DetailView):
+    model = Course
+    template_name = 'web/course/checkout.html'
+    context_object_name = 'course'
+
+
+class PaymentView(DetailView):
+    model = Course
+    template_name = 'web/course/payment.html'
+    context_object_name = 'course'

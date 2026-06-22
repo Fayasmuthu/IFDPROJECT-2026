@@ -56,46 +56,7 @@
                                 </div>
                                 <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-xl-flex">
                                     <ul class="navigation">
-                                        <li class="active menu-item-has-children"><a href="#">Home</a>
-                                            <ul class="sub-menu mega-menu">
-                                                <li>
-                                                    <ul class="list-wrap mega-sub-menu">
-                                                        <li class="active">
-                                                            <a href="index.html">Main Home</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="index-2.html">Online Course <span class="tg-badge">Hot</span></a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="index-3.html">University <span class="tg-badge-two">New</span></a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="index-4.html">Yoga Instructor<span class="tg-badge-two">New</span></a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="index-5.html">Kindergarten<span class="tg-badge">Hot</span></a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <ul class="list-wrap mega-sub-menu">
-                                                        <li>
-                                                            <a href="index-6.html">Language Academy<span class="tg-badge-two">New</span></a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="index-7.html">Business Coach <span class="tg-badge-two">New</span></a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="index-8.html">Kitchen Coach <span class="tg-badge">Hot</span></a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <div class="mega-menu-img">
-                                                        <a href="courses.html"><img src="{% static 'assets/img/others/mega_menu_img.jpg' %}" alt="img"></a>
-                                                    </div>
-                                                </li>
-                                            </ul>
+                                        <li class="active menu-item-has-children"><a href="{% url 'web:index' %}">Home</a>
                                         </li>
                                         <li class="menu-item-has-children"><a href="#">About Us</a>
                                             <ul class="sub-menu">

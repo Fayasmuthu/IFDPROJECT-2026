@@ -1,0 +1,7 @@
+<h2>{{ course.title }}</h2>
+
+<p>Price: Rs.{{ course.price }}</p>
+
+<a href="{% url 'course_payment' course.slug %}">
+    Proceed to Payment
+</a>

@@ -15,6 +15,7 @@ urlpatterns = [
    
     path('blogs/', views.BlogListView.as_view(), name='blog_list'),
     path('blogs/<slug:slug>/', views.BlogDetailView.as_view(), name='blog_detail'),
-
+    path('course/<slug:slug>/checkout/',views.CourseCheckoutView.as_view(),name='course_checkout'),
+    path('course/<slug:slug>/payment/',views.PaymentView.as_view(),name='course_payment'),
 
 ]
