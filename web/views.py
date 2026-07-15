@@ -11,7 +11,7 @@ from django.views.generic import ListView
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 import urllib.parse
-from web.models import Blog, Contactmessage, Course, CourseCategory
+from web.models import Blog, Contactmessage, Course, CourseCategory, Language
 from web.forms import ContactForm
 from orders.models import Wishlist
 from orders.forms import WhatsAppOrderForm
@@ -30,8 +30,22 @@ class indexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["blogs"] = Blog.objects.filter(status=True).order_by('order', '-created_at')[:4]
-        context["course_categories"] = CourseCategory.objects.all()
+        context["course_categories"] = CourseCategory.objects.filter(is_section=True).order_by('order')[:4]
         context["courses"] = Course.objects.filter(status=True).order_by('-created_at')[:10]
+
+        for section in context["course_categories"]:
+            if section.slug == "Duas":
+                section.courses = Course.objects.filter(course_five=True)
+            elif section.slug == "story_prophets":
+                section.courses = Course.objects.filter(course_four=True)
+            elif section.slug == "islamic_studies":
+                section.courses = Course.objects.filter(course_three=True)
+            elif section.slug == "history":
+                section.courses = Course.objects.filter(course_two=True)
+            elif section.slug == "arabic":
+                section.courses = Course.objects.filter(course_one=True)
+            elif section.slug == "all":
+                section.courses = Course.objects.filter(all_section=True)
         # context["categories"] = Category.objects.filter(status='Published')
         # context["subcategories"] = Subcategory.objects.filter(active=True)
         # context["product_type"] = Producttype.objects.all()
@@ -62,84 +76,73 @@ class indexView(TemplateView):
   
 
     
-class shopView(ListView):
-    model = Product
-    template_name = "web/shop.html"
-    context_object_name = "products"
-    paginate_by = 16
+class CourseView(ListView):
+    model = Course
+    template_name = "web/pages/all_courses.html"
+    context_object_name = "courses"
+    paginate_by = 3
 
     def get_queryset(self):
-            products = Product.objects.filter(is_active=True)
-            # subcategories = Subcategory.objects.filter(active=True)
+            courses = Course.objects.filter(status=True)
             sort_by = self.request.GET.get("sort_by")
-            category_slugs = self.request.GET.get("categories")  # Updated query parameter for consistency
-            subcategory_slugs = self.request.GET.get("subcategories")
-            product_type_slugs = self.request.GET.get("product_type")
+            category = self.request.GET.get("category")
+            language = self.request.GET.get("language")
+            price_type = self.request.GET.get("price_type")
             category_title = None
-            subcategory_title = None
-            producttype_title = None
 
 
-            # Filter by category
-            if category_slugs:
-                categories = Category.objects.filter(slug__in=category_slugs.split(","))
-                subcategories = Subcategory.objects.filter(category__in=categories)
-                producttypes = Producttype.objects.filter(Subcategory__in=subcategories)
-                products = products.filter(product_type__in=producttypes)
+            if category:
+                courses = courses.filter(category__slug=category)
 
-            # Filter by Subcategory
-            if subcategory_slugs:
-                subcategories = Subcategory.objects.filter(slug__in=subcategory_slugs.split(","))
-                producttypes = Producttype.objects.filter(Subcategory__in=subcategories)
-                products = products.filter(product_type__in=producttypes)
+            if language:
+                courses = courses.filter(language__id=language)
 
-            # Filter by Product Type
-            if product_type_slugs:
-                producttypes = Producttype.objects.filter(slug__in=product_type_slugs.split(","))
-                # subcategories = Subcategory.objects.filter(producttype__in=producttypes)
-                products = products.filter(product_type__in=producttypes)
-            
-                
+            # Price Filter
+            if price_type == "free":
+                courses = courses.filter(price=0)
+
+            elif price_type == "paid":
+                courses = courses.filter(price__gt=0)
+
             if sort_by:
                 if sort_by == "low_to_high":
-                    annotated_queryset = products.annotate(
-                        min_sale_price_size=Min("available__sale_price"),
-                        # min_sale_price_t=Min("available__sale_price")
+                    annotated_queryset = courses.annotate(
+                        min_sale_price_size=Min("price"),
                     )
-                    products = annotated_queryset.order_by("min_sale_price_size")
+                    courses = annotated_queryset.order_by("min_sale_price_size")
 
                 elif sort_by == "high_to_low":
-                    annotated_queryset = products.annotate(
-                        max_sale_price_size=Max("available__sale_price"),
-                        # max_sale_price_t=Max("available__sale_price")
+                    annotated_queryset = courses.annotate(
+                        max_sale_price_size=Max("price"),
                     )
-                    products = annotated_queryset.order_by("-max_sale_price_size")
+                    courses = annotated_queryset.order_by("-max_sale_price_size")
 
                 elif sort_by == "rating":
-                    products = products.order_by("-rating")
+                    courses = courses.order_by("-rating")
 
                 elif sort_by == "a_to_z":
-                    products = products.order_by("title")
+                    courses = courses.order_by("title")
 
                 elif sort_by == "z_to_a":
-                    products = products.order_by("-title")
+                    courses = courses.order_by("-title")
+
+                elif sort_by == "latest":
+                    courses = courses.order_by("-created_at")
 
                 else:
-                    products = products.order_by("-id")
+                    courses = courses.order_by("-id")
 
             self.category_title = category_title if category_title else None
-            self.subcategory_title = subcategory_title if subcategory_title else None
-            self.producttype_title = producttype_title if producttype_title else None
 
-            return products
+            return courses
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["categories"] = Category.objects.prefetch_related('subcategories').filter(status='Published')
-        context["subcategories"] = Subcategory.objects.filter(active=True).prefetch_related('product_types')
-        context["product_type"] = Producttype.objects.filter(active=True)
+        context["categories"] = Category.objects.all()
+        context["languages"] = Language.objects.all()
+        context["price_types"] = ["free", "paid"]
         context["title"] = self.category_title
-        context["sub_title"] = self.subcategory_title
+        context["total_courses"] = self.get_queryset().count()
 
         return context
 
@@ -149,23 +152,24 @@ def coming_soon(request):
     return render(request, 'web/coming-soon.html', context)
 
 
-class ProductDetailView(DetailView):
-    model = Product
-    template_name = "web/product-image.html"
+class CourseDetailView(DetailView):
+    model = Course
+    template_name = "web/pages/course-details.html"
+    context_object_name = "course"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        current_product = self.get_object()
-        product_ratings = [
-            {"value": 5, "percentage": int(current_product.five_rating())},
-            {"value": 4, "percentage": int(current_product.four_rating())},
-            {"value": 3, "percentage": int(current_product.three_rating())},
-            {"value": 2, "percentage": int(current_product.two_rating())},
-            {"value": 1, "percentage": int(current_product.one_rating())},
-        ]
-        context["reviews"] = current_product.reviews.filter(approval=True)
-        context["review_form"] = ReviewForm()
-        context["product_ratings"] = product_ratings
+        # current_product = self.get_object()
+        # product_ratings = [
+        #     {"value": 5, "percentage": int(current_product.five_rating())},
+        #     {"value": 4, "percentage": int(current_product.four_rating())},
+        #     {"value": 3, "percentage": int(current_product.three_rating())},
+        #     {"value": 2, "percentage": int(current_product.two_rating())},
+        #     {"value": 1, "percentage": int(current_product.one_rating())},
+        # ]
+        # context["reviews"] = current_product.reviews.filter(approval=True)
+        # context["review_form"] = ReviewForm()
+        # context["product_ratings"] = product_ratings
 
         return context
 
@@ -350,3 +354,7 @@ class PaymentView(DetailView):
     model = Course
     template_name = 'web/course/payment.html'
     context_object_name = 'course'
+
+def About(request):
+    context = {'is_contact': True} 
+    return render(request, 'web/pages/about-us.html', context)

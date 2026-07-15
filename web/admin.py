@@ -20,12 +20,15 @@ class BlogAdmin(admin.ModelAdmin):
 
 admin.site.register(Contactmessage)
 
-admin.site.register(CourseCategory)
+@admin.register(CourseCategory)
+class CourseCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name','order', 'is_section']
+    prepopulated_fields = {'slug': ('name',)}
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = (
         'title',
-        'category',
         'instructor',
         'price',
         'status',

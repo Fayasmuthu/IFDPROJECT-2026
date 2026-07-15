@@ -52,77 +52,55 @@
                         <div class="tgmenu__wrap">
                             <nav class="tgmenu__nav">
                                 <div class="logo">
-                                    <a href="index.html"><img src="{% static 'assets/img/logo/logo3.png' %}" alt="Logo"></a>
+                                    <a href="{% url 'web:index' %}"><img src="{% static 'assets/img/logo/logo3.png' %}" alt="Logo"></a>
                                 </div>
                                 <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-xl-flex">
                                     <ul class="navigation">
                                         <li class="active menu-item-has-children"><a href="{% url 'web:index' %}">Home</a>
                                         </li>
-                                        <li class="menu-item-has-children"><a href="#">About Us</a>
-                                            <ul class="sub-menu">
-                                                <li><a href="courses.html">All Courses</a></li>
-                                                <li><a href="course-details.html">Course Details</a></li>
-                                                <li><a href="lesson.html">Course Lesson</a></li>
-                                            </ul>
-                                        </li><li class="menu-item-has-children"><a href="#">Programs</a>
-                                            <ul class="sub-menu">
-                                                <li><a href="courses.html">All Courses</a></li>
-                                                <li><a href="course-details.html">Course Details</a></li>
-                                                <li><a href="lesson.html">Course Lesson</a></li>
-                                            </ul>
-                                        </li><li class="menu-item-has-children"><a href="#">Gallery</a>
-                                            <ul class="sub-menu">
-                                                <li><a href="courses.html">All Courses</a></li>
-                                                <li><a href="course-details.html">Course Details</a></li>
-                                                <li><a href="lesson.html">Course Lesson</a></li>
-                                            </ul>
-                                        </li>
-                                        <li class="menu-item-has-children"><a href="#">Courses</a>
-                                            <ul class="sub-menu">
-                                                <li><a href="courses.html">All Courses</a></li>
-                                                <li><a href="course-details.html">Course Details</a></li>
-                                                <li><a href="lesson.html">Course Lesson</a></li>
-                                            </ul>
-                                        </li>
+                                        <li class="menu-item-has-children"><a href="{% url 'web:about' %}">About Us</a></li>
+                                        <li class="menu-item-has-children"><a href="#">Programs</a></li>
+                                        <li class="menu-item-has-children"><a href="#">Gallery</a></li>
+                                        <li class="menu-item-has-children"><a href="{% url 'web:course_list' %}">Courses</a></li>
                                         <li class="menu-item-has-children"><a href="#">Pages</a>
                                             <ul class="sub-menu">
-                                                <li><a href="about-us.html">About Us</a></li>
+                                                <li><a href="{% url 'web:about' %}">About Us</a></li>
                                                 <li class="menu-item-has-children">
-                                                    <a href="instructors.html">Our Instructors</a>
+                                                    <a href="#">Our Instructors</a>
                                                     <ul class="sub-menu">
-                                                        <li><a href="instructors.html">Our Instructors</a></li>
-                                                        <li><a href="instructor-details.html">Instructor Details</a></li>
+                                                        <li><a href="#">Our Instructors</a></li>
+                                                        <li><a href="#">Instructor Details</a></li>
                                                     </ul>
                                                 </li>
                                                 <li class="menu-item-has-children">
-                                                    <a href="events.html">Our Events</a>
+                                                    <a href="#">Our Events</a>
                                                     <ul class="sub-menu">
-                                                        <li><a href="events.html">Our Events</a></li>
-                                                        <li><a href="events-details.html">Event Details</a></li>
+                                                        <li><a href="#">Our Events</a></li>
+                                                        <li><a href="#">Event Details</a></li>
                                                     </ul>
                                                 </li>
                                                 <li class="menu-item-has-children">
                                                     <a href="shop.html">Shop</a>
                                                     <ul class="sub-menu">
-                                                        <li><a href="shop.html">Shop Page</a></li>
-                                                        <li><a href="shop-details.html">Shop Details</a></li>
-                                                        <li><a href="cart.html">Cart Page</a></li>
-                                                        <li><a href="check-out.html">Checkout</a></li>
+                                                        <li><a href="#">Shop Page</a></li>
+                                                        <li><a href="#">Shop Details</a></li>
+                                                        <li><a href="#">Cart Page</a></li>
+                                                        <li><a href="#">Checkout</a></li>
                                                     </ul>
                                                 </li>
                                                 <li class="menu-item-has-children">
                                                     <a href="blog.html">Blog</a>
                                                     <ul class="sub-menu">
-                                                        <li><a href="blog.html">Blog Right Sidebar</a></li>
-                                                        <li><a href="blog-2.html">Blog Left Sidebar</a></li>
-                                                        <li><a href="blog-3.html">Blog Full Width</a></li>
-                                                        <li><a href="blog-details.html">Blog Details</a></li>
+                                                        <li><a href="#">Blog Right Sidebar</a></li>
+                                                        <li><a href="#">Blog Left Sidebar</a></li>
+                                                        <li><a href="#">Blog Full Width</a></li>
+                                                        <li><a href="#">Blog Details</a></li>
                                                     </ul>
                                                 </li>
-                                                <li><a href="login.html">Student Login</a></li>
-                                                <li><a href="registration.html">Student Registration</a></li>
-                                                <li><a href="404.html">404 Page</a></li>
-                                                <li><a href="contact.html">contact</a></li>
+                                                <li><a href="#">Student Login</a></li>
+                                                <li><a href="#">Student Registration</a></li>
+                                                <li><a href="#">404 Page</a></li>
+                                                <li><a href="#">contact</a></li>
                                             </ul>
                                         </li>
                                         <!-- <li class="menu-item-has-children"><a href="#">Dashboard</a>
