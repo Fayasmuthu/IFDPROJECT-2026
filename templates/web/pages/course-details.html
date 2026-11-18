@@ -75,7 +75,11 @@
             <div class="row">
                 <div class="col-xl-9 col-lg-8">
                     <div class="courses__details-thumb">
-                        <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                        {% if course.image %}
+                            <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                        {% else %}
+                            <img src="{% static 'assets/img/courses/courses_details.jpg' %}" alt="{{ course.title }}">
+                        {% endif %}
                     </div>
                     <div class="courses__details-content">
                         <ul class="courses__item-meta list-wrap">
@@ -195,7 +199,11 @@
                 <div class="col-xl-3 col-lg-4">
                     <div class="courses__details-sidebar">
                         <div class="courses__details-video">
-                            <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                            {% if course.image %}
+                                <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                            {% else %}
+                                <img src="{% static 'assets/img/courses/course_thumb01.jpg' %}" alt="{{ course.title }}">
+                            {% endif %}
                         </div>
                         <div class="courses__cost-wrap">
                             <span>This Course Fee:</span>
@@ -263,7 +271,11 @@
                                 <div class="courses__item shine__animate-item">
                                     <div class="courses__item-thumb">
                                         <a href="{{ related_course.get_absolute_url }}" class="shine__animate-link">
-                                            <img src="{{ related_course.image.url }}" alt="{{ related_course.title }}">
+                                            {% if related_course.image %}
+                                                <img src="{{ related_course.image.url }}" alt="{{ related_course.title }}">
+                                            {% else %}
+                                                <img src="{% static 'assets/img/courses/course_thumb01.jpg' %}" alt="{{ related_course.title }}">
+                                            {% endif %}
                                         </a>
                                     </div>
                                     <div class="courses__item-content">

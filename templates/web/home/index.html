@@ -478,7 +478,11 @@
                                 <div class="courses__item shine__animate-item">
                                     <div class="courses__item-thumb">
                                         <a href="course-details.html" class="shine__animate-link">
-                                            <img src="{{ course.image.url }}" alt="img">
+                                            {% if course.image %}
+                                                <img src="{{ course.image.url }}" alt="img">
+                                            {% else %}
+                                                <img src="{% static 'assets/img/courses/course_thumb01.jpg' %}" alt="img">
+                                            {% endif %}
                                         </a>
                                     </div>
                                     <div class="courses__item-content">
@@ -1027,7 +1031,13 @@
                 <div class="col-xl-3 col-md-6">
                     <div class="blog__post-item shine__animate-item">
                         <div class="blog__post-thumb">
-                            <a href="blog-details.html" class="shine__animate-link"><img src="{{ blog.image.url }}" alt="img"></a>
+                            <a href="blog-details.html" class="shine__animate-link">
+                                {% if blog.image %}
+                                    <img src="{{ blog.image.url }}" alt="img">
+                                {% else %}
+                                    <img src="{% static 'assets/img/blog/blog_post01.png' %}" alt="img">
+                                {% endif %}
+                            </a>
                             <a href="blog.html" class="post-tag">{{ blog.category }}</a>
                         </div>
                         <div class="blog__post-content">

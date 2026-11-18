@@ -363,7 +363,11 @@
                                 <div class="courses__item shine__animate-item">
                                     <div class="courses__item-thumb">
                                         <a href="course-details.html" class="shine__animate-link">
-                                            <img src="{{ course.image.url }}" alt="About Us">
+                                            {% if course.image %}
+                                                <img src="{{ course.image.url }}" alt="About Us">
+                                            {% else %}
+                                                <img src="{% static 'assets/img/courses/course_thumb01.jpg' %}" alt="About Us">
+                                            {% endif %}
                                         </a>
                                     </div>
                                     <div class="courses__item-content">

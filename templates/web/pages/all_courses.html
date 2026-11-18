@@ -313,7 +313,11 @@
                                         <div class="courses__item shine__animate-item card-product">
                                             <div class="courses__item-thumb">
                                                 <a href="{{ course.get_absolute_url }}" class="shine__animate-link">
-                                                    <img src="{{ course.image.url }}" alt="img">
+                                                    {% if course.image %}
+                                                        <img src="{{ course.image.url }}" alt="img">
+                                                    {% else %}
+                                                        <img src="{% static 'assets/img/courses/course_thumb01.jpg' %}" alt="img">
+                                                    {% endif %}
                                                 </a>
                                             </div>
                                             <div class="courses__item-content">
@@ -374,7 +378,11 @@
                                         <div class="courses__item courses__item-three shine__animate-item">
                                             <div class="courses__item-thumb">
                                                 <a href="{{ course.get_absolute_url }}" class="shine__animate-link">
-                                                    <img src="{{ course.image.url }}" alt="img">
+                                                    {% if course.image %}
+                                                        <img src="{{ course.image.url }}" alt="img">
+                                                    {% else %}
+                                                        <img src="{% static 'assets/img/courses/course_thumb01.jpg' %}" alt="img">
+                                                    {% endif %}
                                                 </a>
                                             </div>
                                             <div class="courses__item-content">

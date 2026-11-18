@@ -19,4 +19,12 @@ urlpatterns = [
     path('course/<slug:slug>/checkout/',views.CourseCheckoutView.as_view(),name='course_checkout'),
     path('course/<slug:slug>/payment/',views.PaymentView.as_view(),name='course_payment'),
 
+    # Course Islam & Library
+    path('course-library/', views.CourseLibraryView.as_view(), name='course_library'),
+    path('course-library/pay-unlock/', views.enroll_and_unlock_course, name='course_pay_unlock'),
+    path('course-islam/', views.CourseIslamView.as_view(), name='course_islam'),
+    path('course-islam/toggle-progress/', views.toggle_chapter_progress, name='toggle_chapter_progress'),
+    path('course-islam/send-chat/', views.send_course_chat, name='send_course_chat'),
+    path('course-islam/<slug:slug>/', views.CourseIslamView.as_view(), name='course_islam_detail'),
+
 ]

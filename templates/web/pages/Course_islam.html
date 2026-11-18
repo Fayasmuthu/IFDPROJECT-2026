@@ -1,0 +1,1489 @@
+{% extends 'web/partials/base.html' %}
+{% load static i18n %}
+
+{% block title %}Course Islam - {{ course.title }} | IFD{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Course Islam Hub Styling */
+    .course-hub-area {
+        background-color: #f8fafc;
+        padding: 50px 0 90px;
+    }
+
+    /* Top Course Hero Card (Matches Reference Image) */
+    .course-hero-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #eef2f6;
+        box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+        padding: 24px;
+        margin-bottom: 28px;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .course-thumb-box {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        background: #0f172a;
+        cursor: pointer;
+    }
+
+    .course-thumb-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.88;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .course-thumb-box:hover img {
+        transform: scale(1.03);
+        opacity: 0.75;
+    }
+
+    .thumb-play-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 64px;
+        height: 64px;
+        background: #2563eb;
+        color: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+        font-size: 22px;
+        padding-left: 4px;
+        transition: transform 0.2s ease, background 0.2s ease;
+        z-index: 2;
+    }
+
+    .course-thumb-box:hover .thumb-play-btn {
+        transform: translate(-50%, -50%) scale(1.1);
+        background: #1d4ed8;
+    }
+
+    .thumb-badges {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        display: flex;
+        gap: 6px;
+        z-index: 2;
+    }
+
+    .thumb-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 9px;
+        border-radius: 6px;
+        color: #ffffff;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(4px);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .thumb-badge.aq { background: rgba(37, 99, 235, 0.9); }
+    .thumb-badge.pr { background: rgba(16, 185, 129, 0.9); }
+    .thumb-badge.fq { background: rgba(139, 92, 246, 0.9); }
+
+    .course-meta-tag {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .course-main-title {
+        font-size: 26px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.3;
+    }
+
+    /* Progress Bar */
+    .progress-wrap {
+        margin: 18px 0 20px;
+    }
+
+    .progress-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .progress-meta .label {
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .progress-meta .percent {
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    .custom-progress-track {
+        width: 100%;
+        height: 8px;
+        background-color: #e2e8f0;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .custom-progress-bar {
+        height: 100%;
+        background: #2563eb;
+        border-radius: 999px;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-review-course {
+        background-color: #2563eb;
+        color: #ffffff;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-review-course:hover {
+        background-color: #1d4ed8;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    /* Tab Navigation */
+    .course-nav-tabs {
+        display: flex;
+        gap: 12px;
+        background: #ffffff;
+        border: 1px solid #eef2f6;
+        border-radius: 12px;
+        padding: 8px;
+        margin-bottom: 24px;
+    }
+
+    .course-tab-btn {
+        background: transparent;
+        border: none;
+        padding: 9px 20px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .course-tab-btn:hover {
+        color: #0f172a;
+        background: #f1f5f9;
+    }
+
+    .course-tab-btn.active {
+        color: #0f172a;
+        background: #f1f5f9;
+        font-weight: 700;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .course-tab-btn .badge-count {
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .course-tab-btn.active .badge-count {
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    /* Content Tab Header */
+    .content-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .content-header-row h4 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+    }
+
+    .content-stats {
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    /* Accordion & Sections */
+    .curriculum-accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .curriculum-card {
+        background: #ffffff;
+        border: 1px solid #eef2f6;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: border-color 0.2s ease;
+    }
+
+    .curriculum-card:hover {
+        border-color: #cbd5e1;
+    }
+
+    .curriculum-card-header {
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        background: #ffffff;
+        transition: background 0.2s ease;
+    }
+
+    .curriculum-card-header:hover {
+        background: #f8fafc;
+    }
+
+    .sec-header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .sec-status-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+
+    .sec-status-icon.completed {
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    .sec-status-icon.in-progress {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #cbd5e1;
+    }
+
+    .sec-title-group h5 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 2px 0;
+    }
+
+    .sec-title-group .sec-subtitle {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .sec-toggle-icon {
+        font-size: 14px;
+        color: #64748b;
+        transition: transform 0.25s ease;
+    }
+
+    .curriculum-card.expanded .sec-toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    /* Chapter List */
+    .chapter-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .chapter-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px 14px 24px;
+        border-bottom: 1px solid #f8fafc;
+        transition: background 0.15s ease;
+    }
+
+    .chapter-item:last-child {
+        border-bottom: none;
+    }
+
+    .chapter-item:hover {
+        background: #f8fafc;
+    }
+
+    .chapter-item.active-playing {
+        background: #eff6ff;
+        border-left: 3px solid #2563eb;
+    }
+
+    .chapter-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex: 1;
+        cursor: pointer;
+    }
+
+    .chapter-play-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 14px;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+
+    .chapter-item:hover .chapter-play-icon,
+    .chapter-item.active-playing .chapter-play-icon {
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    .chapter-info h6 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 2px 0;
+    }
+
+    .chapter-item.active-playing .chapter-info h6 {
+        color: #2563eb;
+    }
+
+    .chapter-info .duration {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    /* Interactive Checkbox / Mark complete (Matches Screenshot) */
+    .chapter-checkbox-btn {
+        background: transparent;
+        border: none;
+        padding: 6px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.15s ease;
+    }
+
+    .chapter-checkbox-btn:hover {
+        transform: scale(1.15);
+    }
+
+    .chapter-check-icon {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        line-height: 1;
+        transition: all 0.2s ease;
+    }
+
+    .chapter-check-icon.checked {
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+    }
+
+    .chapter-check-icon.checked i {
+        display: inline-block;
+        font-size: 13px;
+        color: #ffffff;
+        line-height: 1;
+    }
+
+    .chapter-check-icon.unchecked {
+        border: 2px solid #cbd5e1;
+        background: #ffffff;
+        color: transparent;
+    }
+
+    .chapter-check-icon.unchecked i {
+        display: none !important;
+    }
+
+    .chapter-check-icon.unchecked:hover {
+        border-color: #2563eb;
+        background: #eff6ff;
+    }
+
+    /* Video Player Box */
+    .video-player-container {
+        display: none;
+        background: #0f172a;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .video-player-header {
+        background: #1e293b;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #ffffff;
+    }
+
+    .video-player-header .current-title {
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .video-player-header .close-player-btn {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 18px;
+        cursor: pointer;
+        transition: color 0.15s;
+    }
+
+    .video-player-header .close-player-btn:hover {
+        color: #ffffff;
+    }
+
+    .main-video-wrapper {
+        position: relative;
+        padding-top: 56.25%; /* 16:9 */
+        background: #000000;
+    }
+
+    .main-video-wrapper video,
+    .main-video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .video-player-footer {
+        background: #1e293b;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .btn-nav-video {
+        background: #334155;
+        color: #ffffff;
+        border: none;
+        padding: 7px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .btn-nav-video:hover {
+        background: #475569;
+    }
+
+    /* Chat Tab */
+    .chat-card {
+        background: #ffffff;
+        border: 1px solid #eef2f6;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    }
+
+    .chat-messages-container {
+        height: 440px;
+        overflow-y: auto;
+        padding-right: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .chat-message-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .chat-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #334155;
+        font-weight: 700;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .chat-avatar.instructor {
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    .chat-bubble {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        max-width: 80%;
+    }
+
+    .chat-bubble.instructor {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+    }
+
+    .chat-author-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    .chat-author-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .badge-instructor {
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .chat-time {
+        font-size: 11px;
+        color: #94a3b8;
+    }
+
+    .chat-text {
+        font-size: 14px;
+        color: #334155;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Certificate Tab */
+    .certificate-card {
+        background: #ffffff;
+        border: 1px solid #eef2f6;
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    }
+
+    .certificate-diploma-wrapper {
+        border: 8px solid #0f172a;
+        outline: 2px solid #ca8a04;
+        outline-offset: -5px;
+        border-radius: 12px;
+        padding: 40px;
+        background: #fefefe;
+        position: relative;
+        text-align: center;
+        margin: 24px 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    .certificate-watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 80px;
+        color: rgba(37, 99, 235, 0.04);
+        font-weight: 900;
+        pointer-events: none;
+        text-transform: uppercase;
+        user-select: none;
+    }
+
+    .cert-logo {
+        height: 60px;
+        margin-bottom: 12px;
+    }
+
+    .cert-org {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #0f172a;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .cert-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1e3a8a;
+        margin: 12px 0 6px;
+        letter-spacing: 1px;
+    }
+
+    .cert-student-name {
+        font-size: 32px;
+        font-weight: 800;
+        color: #0f172a;
+        border-bottom: 2px solid #e2e8f0;
+        display: inline-block;
+        padding: 0 24px 6px;
+        margin: 16px 0;
+        font-family: serif;
+    }
+
+    .cert-course-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2563eb;
+        margin: 8px 0 18px;
+    }
+
+    .cert-signatures {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 40px;
+        padding-top: 20px;
+    }
+
+    .cert-sig-block {
+        text-align: center;
+        border-top: 1px solid #cbd5e1;
+        padding-top: 8px;
+        min-width: 180px;
+    }
+
+    .cert-sig-block .role {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    /* Print optimization for Certificate */
+    @media print {
+        @page {
+            size: landscape;
+            margin: 0.5cm;
+        }
+        body {
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        body * {
+            visibility: hidden !important;
+        }
+        #preloader, header, footer, .tg-header__area, .scroll__top, .course-hero-card, .course-nav-tabs, .video-player-container, #paneContent, #paneChat, .alert, .btn, .content-header-row {
+            display: none !important;
+        }
+        #paneCertificate, #certUnlockedSection {
+            display: block !important;
+        }
+        #certificate-print-area, #certificate-print-area * {
+            visibility: visible !important;
+        }
+        #certificate-print-area {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 1000px !important;
+            margin: 0 auto !important;
+            padding: 30px !important;
+            border: 8px solid #0f172a !important;
+            outline: 2px solid #ca8a04 !important;
+            outline-offset: -5px !important;
+            box-shadow: none !important;
+            display: block !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-area fix">
+    <!-- Hidden CSRF token fallback -->
+    <div style="display:none;">{% csrf_token %}</div>
+
+    <section class="course-hub-area">
+        <div class="container">
+
+            <!-- Top Hero Course Card (Matches Reference Image) -->
+            <div class="course-hero-card">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-5 col-md-6">
+                        <div class="course-thumb-box" id="heroThumbBox" onclick="startOrScrollVideo()">
+                            {% if course.image %}
+                                <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                            {% else %}
+                                <img src="{% static 'assets/img/home/abouts.png' %}" alt="Course Islam">
+                            {% endif %}
+                            <div class="thumb-play-btn">
+                                <i class="bi bi-play-fill"></i>
+                            </div>
+                            <div class="thumb-badges">
+                                <span class="thumb-badge aq">Aqeedah</span>
+                                <span class="thumb-badge pr">Hadith</span>
+                                <span class="thumb-badge fq">Fiqh</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 col-md-6">
+                        <div class="course-meta-tag">COURSE</div>
+                        <h2 class="course-main-title">{{ course.title }}</h2>
+
+                        <!-- Progress Section -->
+                        <div class="progress-wrap">
+                            <div class="progress-meta">
+                                <span class="label">Your progress</span>
+                                <span class="percent" id="heroProgressText">{{ progress_percent }}% complete</span>
+                            </div>
+                            <div class="custom-progress-track">
+                                <div class="custom-progress-bar" id="heroProgressBar" style="width: {{ progress_percent }}%;"></div>
+                            </div>
+                        </div>
+
+                        <button class="btn-review-course" id="heroActionBtn" onclick="startOrScrollVideo()">
+                            <i class="bi bi-play-fill"></i>
+                            <span id="heroActionBtnText">{% if all_completed %}Review course{% elif progress_percent > 0 %}Continue course{% else %}Start course{% endif %}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Player Container (Supports both HTML5 MP4 & YouTube/Vimeo Embeds) -->
+            <div class="video-player-container" id="videoPlayerBox">
+                <div class="video-player-header">
+                    <div class="current-title">
+                        <i class="bi bi-camera-video-fill text-primary"></i>
+                        <span id="playerChapterTitle">
+                            {% if first_video %}
+                                Chapter {{ first_video.order }}: {{ first_video.title }}
+                            {% else %}
+                                Islamic Studies Video Lesson
+                            {% endif %}
+                        </span>
+                    </div>
+                    <button class="close-player-btn" onclick="closeVideoPlayer()" title="Close Player">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="main-video-wrapper">
+                    <video id="courseVideoPlayer" controls playsinline poster="{% static 'assets/img/home/abouts.png' %}">
+                        <source id="videoSource" src="{% if first_video %}{{ first_video.video_url }}{% else %}https://www.w3schools.com/html/mov_bbb.mp4{% endif %}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <iframe id="courseIframePlayer" style="display: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div class="video-player-footer">
+                    <button class="btn-nav-video" id="prevVideoBtn" onclick="navigateChapter(-1)">
+                        <i class="bi bi-chevron-left me-1"></i> Previous Chapter
+                    </button>
+                    <button class="btn-nav-video {% if first_video and first_video.is_completed %}bg-success{% else %}bg-primary{% endif %} text-white" id="playerToggleCompleteBtn" onclick="toggleCurrentPlayingChapter()">
+                        <i class="bi {% if first_video and first_video.is_completed %}bi-check-circle-fill{% else %}bi-circle{% endif %} me-1"></i>
+                        <span>{% if first_video and first_video.is_completed %}Completed{% else %}Mark as Completed{% endif %}</span>
+                    </button>
+                    <button class="btn-nav-video" id="nextVideoBtn" onclick="navigateChapter(1)">
+                        Next Chapter <i class="bi bi-chevron-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Bar (Content, Chat, Certificate) -->
+            <div class="course-nav-tabs">
+                <button class="course-tab-btn active" id="tabBtnContent" onclick="switchCourseTab('content')">
+                    <i class="bi bi-list-ul fs-5"></i>
+                    <span>Content</span>
+                    <span class="badge-count" id="tabContentBadge">{{ total_chapters }}</span>
+                </button>
+                <button class="course-tab-btn" id="tabBtnChat" onclick="switchCourseTab('chat')">
+                    <i class="bi bi-chat-dots fs-5"></i>
+                    <span>Chat</span>
+                    <span class="badge-count">{{ chat_messages.count }}</span>
+                </button>
+                <button class="course-tab-btn" id="tabBtnCertificate" onclick="switchCourseTab('certificate')">
+                    <i class="bi bi-award fs-5"></i>
+                    <span>Certificate</span>
+                    <span class="badge-count" id="tabCertBadge">{% if all_completed %}Unlocked{% else %}Locked{% endif %}</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: CONTENT -->
+            <div class="tab-pane-content" id="paneContent">
+                <div class="content-header-row">
+                    <h4>Content</h4>
+                    <span class="content-stats" id="contentStatsLabel">{{ total_sections }} sections · {{ total_chapters }} chapters</span>
+                </div>
+
+                <!-- Sections Accordion (Matches reference image with Section 3 open) -->
+                <div class="curriculum-accordion">
+                    {% for sec in sections %}
+                        <div class="curriculum-card {% if forloop.counter == 3 %}expanded{% endif %}" id="secCard-{{ sec.id }}">
+                            <div class="curriculum-card-header" onclick="toggleSectionAccordion('{{ sec.id }}')">
+                                <div class="sec-header-left">
+                                    <div class="sec-status-icon {% if sec.is_completed %}completed{% else %}in-progress{% endif %}" id="secIcon-{{ sec.id }}">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    <div class="sec-title-group">
+                                        <h5>{{ sec.title }}</h5>
+                                        <div class="sec-subtitle">
+                                            <span id="secProgressLabel-{{ sec.id }}">{{ sec.chapter_count }} chapters · <span id="secStatusText-{{ sec.id }}">{% if sec.is_completed %}Completed{% else %}{{ sec.completed_count }}/{{ sec.chapter_count }} Completed{% endif %}</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="sec-toggle-icon">
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                            </div>
+
+                            <!-- Chapters List -->
+                            <ul class="chapter-list" id="chapterList-{{ sec.id }}" style="display: {% if forloop.counter == 3 %}block{% else %}none{% endif %};">
+                                {% for ch in sec.chapters %}
+                                    <li class="chapter-item {% if forloop.parentloop.first and forloop.first %}active-playing{% endif %}" id="chItem-{{ ch.id }}" data-chapter-id="{{ ch.id }}" data-video-url="{{ ch.video_url }}" data-chapter-title="Chapter {{ ch.order }}: {{ ch.title }}">
+                                        <div class="chapter-left" onclick="playChapterVideo('{{ ch.id }}', '{{ ch.video_url }}', 'Chapter {{ ch.order }}: {{ ch.title|escapejs }}')">
+                                            <div class="chapter-play-icon">
+                                                <i class="bi bi-play-circle"></i>
+                                            </div>
+                                            <div class="chapter-info">
+                                                <h6>Chapter {{ ch.order }}: {{ ch.title }}</h6>
+                                                <span class="duration"><i class="bi bi-clock me-1"></i>{{ ch.duration }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="chapter-right">
+                                            <button class="chapter-checkbox-btn" onclick="toggleChapterCheckbox('{{ ch.id }}', event)" title="{% if ch.is_completed %}Mark as incomplete{% else %}Mark as completed{% endif %}">
+                                                <div class="chapter-check-icon {% if ch.is_completed %}checked{% else %}unchecked{% endif %}" id="chCheckIcon-{{ ch.id }}">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- TAB 2: CHAT -->
+            <div class="tab-pane-content" id="paneChat" style="display: none;">
+                <div class="chat-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1"><i class="bi bi-chat-dots me-2 text-primary"></i>Course Discussion & Q&A</h5>
+                            <small class="text-muted">Ask questions about signs, Islamic lessons, or discuss with classmates.</small>
+                        </div>
+                        <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill">
+                            <i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i> Class Active
+                        </span>
+                    </div>
+
+                    <!-- Scrollable Messages -->
+                    <div class="chat-messages-container" id="chatMessagesBox">
+                        {% for msg in chat_messages %}
+                            <div class="chat-message-item">
+                                <div class="chat-avatar {% if msg.is_instructor %}instructor{% endif %}">
+                                    {% if msg.is_instructor %}
+                                        <i class="bi bi-person-video3"></i>
+                                    {% else %}
+                                        {{ msg.user_name|slice:":1"|upper }}
+                                    {% endif %}
+                                </div>
+                                <div class="chat-bubble {% if msg.is_instructor %}instructor{% endif %}">
+                                    <div class="chat-author-row">
+                                        <span class="chat-author-name">{{ msg.user_name }}</span>
+                                        {% if msg.is_instructor %}
+                                            <span class="badge-instructor"><i class="bi bi-patch-check-fill me-1"></i>Instructor</span>
+                                        {% endif %}
+                                        <span class="chat-time">{{ msg.created_at|date:"M d, h:i A" }}</span>
+                                    </div>
+                                    <p class="chat-text">{{ msg.message }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Input Bar -->
+                    <form id="chatForm" onsubmit="submitCourseChatMessage(event)">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="chatAuthorName" value="{{ student_name }}" placeholder="Your Name" required>
+                            </div>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control" id="chatMessageInput" placeholder="Type your question or thought here..." required autocomplete="off">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="bi bi-send-fill"></i>
+                                    <span>Send</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 3: CERTIFICATE -->
+            <div class="tab-pane-content" id="paneCertificate" style="display: none;">
+                <div class="certificate-card">
+
+                    <!-- If 100% complete: Unlocked Certificate View -->
+                    <div id="certUnlockedSection" style="display: {% if all_completed %}block{% else %}none{% endif %};">
+                        <div class="alert alert-success d-flex align-items-center justify-content-between p-3 rounded-3 mb-4 flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-patch-check-fill fs-3 text-success"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Alhamdulillah! Course Completed</h6>
+                                    <small>You have successfully completed all 41 chapters. Your official certificate is ready to download.</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm d-flex align-items-center gap-2" onclick="printCertificate()">
+                                <i class="bi bi-printer-fill"></i> Print / Save as PDF
+                            </button>
+                        </div>
+
+                        <!-- Name Customizer input -->
+                        <div class="row g-3 align-items-center mb-3">
+                            <div class="col-auto">
+                                <label class="fw-semibold text-secondary">Student Name on Certificate:</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="certStudentNameInput" value="{{ student_name }}" oninput="updateCertDisplayName(this.value)">
+                            </div>
+                        </div>
+
+                        <!-- Printable Diploma Document -->
+                        <div class="certificate-diploma-wrapper" id="certificate-print-area">
+                            <div class="certificate-watermark">IFD INDIA</div>
+                            <img src="{% static 'assets/img/logo/footer.png' %}" alt="IFD Logo" class="cert-logo">
+                            <div class="cert-org">INTERACTIVE FOUNDATION FOR THE DEAF (IFD)</div>
+                            <h1 class="cert-title">CERTIFICATE OF COMPLETION</h1>
+                            <p class="text-muted mt-2 mb-1">This is proudly presented to</p>
+                            <div class="cert-student-name" id="certDisplayStudentName">{{ student_name }}</div>
+                            <p class="text-muted mb-1">for successfully mastering all modules and completing</p>
+                            <div class="cert-course-name">{{ course.title }}</div>
+                            <p class="text-secondary small max-w-600 mx-auto">
+                                Comprehensive course covering Islamic Foundations (Aqeedah), Prophetic Traditions (Hadith & Duas), Practical Fiqh, and Indian Sign Language (ISL) Quranic Studies (41 Chapters).
+                            </p>
+
+                            <div class="cert-signatures">
+                                <div class="cert-sig-block">
+                                    <div class="fw-bold text-dark font-monospace">Ustadh Farooq</div>
+                                    <div class="role">Head Instructor, IFD</div>
+                                </div>
+                                <div class="cert-sig-block">
+                                    <img src="{% static 'assets/img/logo/qr.png' %}" style="height: 48px; opacity: 0.8;" alt="Verification QR">
+                                    <div class="role">ID: IFD-ISL-2026-{{ course.id|default:'01' }}847</div>
+                                    <div class="role text-muted mt-1">{% now "F d, Y" %}</div>
+                                </div>
+                                <div class="cert-sig-block">
+                                    <div class="fw-bold text-dark font-monospace">Director IFD</div>
+                                    <div class="role">Director of Education</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- If not complete: Locked Notice & Preview -->
+                    <div id="certLockedSection" style="display: {% if not all_completed %}block{% else %}none{% endif %};">
+                        <div class="alert alert-warning p-4 rounded-3 text-center mb-4">
+                            <div class="mb-2"><i class="bi bi-lock-fill text-warning fs-1"></i></div>
+                            <h5 class="fw-bold text-dark">Certificate Locked</h5>
+                            <p class="text-muted mb-3">
+                                Complete all 41 chapters to earn and download your official IFD verified certificate.<br>
+                                Current Progress: <strong id="lockedProgressValue">{{ progress_percent }}%</strong> (<span id="lockedChaptersCount">{{ total_completed }}</span>/{{ total_chapters }} chapters completed).
+                            </p>
+                            <div class="custom-progress-track max-w-400 mx-auto mb-3" style="max-width: 420px;">
+                                <div class="custom-progress-bar" id="lockedProgressBar" style="width: {{ progress_percent }}%;"></div>
+                            </div>
+                            <button class="btn btn-outline-primary" onclick="switchCourseTab('content')">
+                                <i class="bi bi-arrow-left me-1"></i> Continue Course Chapters
+                            </button>
+                        </div>
+
+                        <!-- Certificate Watermarked Preview -->
+                        <div class="text-center text-muted small mb-2"><i class="bi bi-eye me-1"></i> Certificate Preview (Unlocks at 100%)</div>
+                        <div class="certificate-diploma-wrapper opacity-50" style="filter: grayscale(40%);">
+                            <div class="certificate-watermark">PREVIEW ONLY</div>
+                            <img src="{% static 'assets/img/logo/footer.png' %}" alt="IFD Logo" class="cert-logo">
+                            <div class="cert-org">INTERACTIVE FOUNDATION FOR THE DEAF</div>
+                            <h2 class="cert-title">CERTIFICATE OF COMPLETION</h2>
+                            <div class="cert-student-name">{{ student_name }}</div>
+                            <div class="cert-course-name">{{ course.title }}</div>
+                            <div class="text-secondary small mt-3">41 Chapters · Completed with Verified Sign Language Mastery</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block js %}
+<script>
+    // State variables
+    let currentPlayingChapterId = '{{ first_video.id|default:"" }}';
+    const courseId = '{{ course.id }}';
+    const toggleProgressUrl = "{% url 'web:toggle_chapter_progress' %}";
+    const sendChatUrl = "{% url 'web:send_course_chat' %}";
+
+    // 1. Tab Switching
+    function switchCourseTab(tabName) {
+        document.querySelectorAll('.course-tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-pane-content').forEach(pane => pane.style.display = 'none');
+
+        if (tabName === 'content') {
+            document.getElementById('tabBtnContent').classList.add('active');
+            document.getElementById('paneContent').style.display = 'block';
+        } else if (tabName === 'chat') {
+            document.getElementById('tabBtnChat').classList.add('active');
+            document.getElementById('paneChat').style.display = 'block';
+            scrollChatToBottom();
+        } else if (tabName === 'certificate') {
+            document.getElementById('tabBtnCertificate').classList.add('active');
+            document.getElementById('paneCertificate').style.display = 'block';
+        }
+    }
+
+    // 2. Section Accordion Toggle
+    function toggleSectionAccordion(secId) {
+        const card = document.getElementById('secCard-' + secId);
+        const list = document.getElementById('chapterList-' + secId);
+        if (list.style.display === 'none' || list.style.display === '') {
+            list.style.display = 'block';
+            card.classList.add('expanded');
+        } else {
+            list.style.display = 'none';
+            card.classList.remove('expanded');
+        }
+    }
+
+    // 3. Play Video Functionality (Supports HTML5 & YouTube/Vimeo)
+    function startOrScrollVideo() {
+        switchCourseTab('content');
+        const playerBox = document.getElementById('videoPlayerBox');
+        playerBox.style.display = 'block';
+        playerBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const video = document.getElementById('courseVideoPlayer');
+        if (video && video.style.display !== 'none') {
+            video.play().catch(e => console.log('Autoplay handled:', e));
+        }
+    }
+
+    function closeVideoPlayer() {
+        const playerBox = document.getElementById('videoPlayerBox');
+        playerBox.style.display = 'none';
+        const video = document.getElementById('courseVideoPlayer');
+        if (video) video.pause();
+        const iframe = document.getElementById('courseIframePlayer');
+        if (iframe) iframe.src = '';
+    }
+
+    function playChapterVideo(chId, videoUrl, title) {
+        currentPlayingChapterId = chId;
+        const playerBox = document.getElementById('videoPlayerBox');
+        playerBox.style.display = 'block';
+        playerBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        document.getElementById('playerChapterTitle').textContent = title;
+        const video = document.getElementById('courseVideoPlayer');
+        const iframe = document.getElementById('courseIframePlayer');
+        const source = document.getElementById('videoSource');
+
+        const ytMatch = videoUrl ? videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/) : null;
+        const vimeoMatch = videoUrl ? videoUrl.match(/vimeo\.com\/(?:video\/)?([0-9]+)/) : null;
+
+        if (ytMatch) {
+            if (video) {
+                video.pause();
+                video.style.display = 'none';
+            }
+            if (iframe) {
+                iframe.style.display = 'block';
+                iframe.src = `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+            }
+        } else if (vimeoMatch) {
+            if (video) {
+                video.pause();
+                video.style.display = 'none';
+            }
+            if (iframe) {
+                iframe.style.display = 'block';
+                iframe.src = `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+            }
+        } else {
+            if (iframe) {
+                iframe.src = '';
+                iframe.style.display = 'none';
+            }
+            if (video && source) {
+                video.style.display = 'block';
+                source.src = videoUrl || 'https://www.w3schools.com/html/mov_bbb.mp4';
+                video.load();
+                video.play().catch(e => console.log('Autoplay handled:', e));
+            }
+        }
+
+        // Highlight active item & auto-expand section
+        document.querySelectorAll('.chapter-item').forEach(item => item.classList.remove('active-playing'));
+        const activeItem = document.getElementById('chItem-' + chId);
+        if (activeItem) {
+            activeItem.classList.add('active-playing');
+            const parentCard = activeItem.closest('.curriculum-card');
+            if (parentCard) {
+                parentCard.classList.add('expanded');
+                const list = parentCard.querySelector('.chapter-list');
+                if (list) list.style.display = 'block';
+            }
+            const icon = document.getElementById('chCheckIcon-' + chId);
+            updatePlayerToggleButton(icon && icon.classList.contains('checked'));
+        }
+
+        const allItems = Array.from(document.querySelectorAll('.chapter-item'));
+        const currentIndex = allItems.findIndex(el => el.getAttribute('data-chapter-id') == chId);
+        if (currentIndex !== -1) {
+            updateNavButtonsState(currentIndex, allItems.length);
+        }
+    }
+
+    function updateNavButtonsState(idx, total) {
+        const prevBtn = document.getElementById('prevVideoBtn');
+        const nextBtn = document.getElementById('nextVideoBtn');
+        if (prevBtn) {
+            prevBtn.disabled = (idx <= 0);
+            prevBtn.style.opacity = (idx <= 0) ? '0.45' : '1';
+            prevBtn.style.cursor = (idx <= 0) ? 'not-allowed' : 'pointer';
+        }
+        if (nextBtn) {
+            nextBtn.disabled = (idx >= total - 1);
+            nextBtn.style.opacity = (idx >= total - 1) ? '0.45' : '1';
+            nextBtn.style.cursor = (idx >= total - 1) ? 'not-allowed' : 'pointer';
+        }
+    }
+
+    function updatePlayerToggleButton(isCompleted) {
+        const btn = document.getElementById('playerToggleCompleteBtn');
+        if (!btn) return;
+        if (isCompleted) {
+            btn.className = 'btn-nav-video bg-success text-white';
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> <span>Completed</span>';
+        } else {
+            btn.className = 'btn-nav-video bg-primary text-white';
+            btn.innerHTML = '<i class="bi bi-circle me-1"></i> <span>Mark as Completed</span>';
+        }
+    }
+
+    // Navigate to next/prev chapter
+    function navigateChapter(direction) {
+        const allItems = Array.from(document.querySelectorAll('.chapter-item'));
+        if (!allItems.length) return;
+
+        let currentIndex = allItems.findIndex(el => el.getAttribute('data-chapter-id') == currentPlayingChapterId);
+        if (currentIndex === -1) currentIndex = 0;
+
+        let nextIndex = currentIndex + direction;
+        if (nextIndex >= 0 && nextIndex < allItems.length) {
+            const nextEl = allItems[nextIndex];
+            const chId = nextEl.getAttribute('data-chapter-id');
+            const videoUrl = nextEl.getAttribute('data-video-url');
+            const title = nextEl.getAttribute('data-chapter-title');
+            playChapterVideo(chId, videoUrl, title);
+        }
+    }
+
+    function toggleCurrentPlayingChapter() {
+        if (currentPlayingChapterId) {
+            toggleChapterCheckbox(currentPlayingChapterId);
+        } else {
+            const firstItem = document.querySelector('.chapter-item');
+            if (firstItem) {
+                toggleChapterCheckbox(firstItem.getAttribute('data-chapter-id'));
+            }
+        }
+    }
+
+    // 4. Interactive Checkbox AJAX Toggle
+    function toggleChapterCheckbox(chId, event) {
+        if (event) {
+            event.stopPropagation();
+        }
+
+        const iconEl = document.getElementById('chCheckIcon-' + chId);
+        if (!iconEl) return;
+        const willComplete = iconEl.classList.contains('unchecked');
+
+        // Optimistic UI update
+        if (willComplete) {
+            iconEl.classList.remove('unchecked');
+            iconEl.classList.add('checked');
+        } else {
+            iconEl.classList.remove('checked');
+            iconEl.classList.add('unchecked');
+        }
+
+        if (chId == currentPlayingChapterId) {
+            updatePlayerToggleButton(willComplete);
+        }
+
+        fetch(toggleProgressUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                chapter_id: chId,
+                completed: willComplete
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const pct = data.progress_percent;
+                document.getElementById('heroProgressText').textContent = pct + '% complete';
+                document.getElementById('heroProgressBar').style.width = pct + '%';
+
+                const heroBtnText = document.getElementById('heroActionBtnText');
+                if (heroBtnText) {
+                    if (data.all_completed) heroBtnText.textContent = 'Review course';
+                    else if (pct > 0) heroBtnText.textContent = 'Continue course';
+                    else heroBtnText.textContent = 'Start course';
+                }
+
+                const lockedProgress = document.getElementById('lockedProgressValue');
+                if (lockedProgress) lockedProgress.textContent = pct + '%';
+                const lockedBar = document.getElementById('lockedProgressBar');
+                if (lockedBar) lockedBar.style.width = pct + '%';
+                const lockedChapters = document.getElementById('lockedChaptersCount');
+                if (lockedChapters) lockedChapters.textContent = data.completed_chapters;
+
+                // Update Section Header status
+                const secIcon = document.getElementById('secIcon-' + data.section_id);
+                const secStatus = document.getElementById('secStatusText-' + data.section_id);
+                if (secIcon && secStatus) {
+                    if (data.section_is_completed) {
+                        secIcon.classList.remove('in-progress');
+                        secIcon.classList.add('completed');
+                        secStatus.textContent = 'Completed';
+                    } else {
+                        secIcon.classList.remove('completed');
+                        secIcon.classList.add('in-progress');
+                        secStatus.textContent = data.section_completed_count + '/' + data.section_total + ' Completed';
+                    }
+                }
+
+                // If 100% completed, unlock certificate!
+                if (data.all_completed) {
+                    document.getElementById('tabCertBadge').textContent = 'Unlocked';
+                    document.getElementById('certUnlockedSection').style.display = 'block';
+                    document.getElementById('certLockedSection').style.display = 'none';
+                } else {
+                    document.getElementById('tabCertBadge').textContent = 'Locked';
+                    document.getElementById('certUnlockedSection').style.display = 'none';
+                    document.getElementById('certLockedSection').style.display = 'block';
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error toggling chapter:', err);
+        });
+    }
+
+    // 5. Chat AJAX Posting
+    function submitCourseChatMessage(e) {
+        e.preventDefault();
+        const authorInput = document.getElementById('chatAuthorName');
+        const msgInput = document.getElementById('chatMessageInput');
+        const text = msgInput.value.trim();
+        const name = authorInput.value.trim() || 'Student';
+
+        if (!text) return;
+
+        fetch(sendChatUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                course_id: courseId,
+                user_name: name,
+                message: text
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const box = document.getElementById('chatMessagesBox');
+                const m = data.message;
+
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'chat-message-item';
+                msgDiv.innerHTML = `
+                    <div class="chat-avatar ${m.is_instructor ? 'instructor' : ''}">
+                        ${m.is_instructor ? '<i class="bi bi-person-video3"></i>' : (m.user_name.charAt(0).toUpperCase())}
+                    </div>
+                    <div class="chat-bubble ${m.is_instructor ? 'instructor' : ''}">
+                        <div class="chat-author-row">
+                            <span class="chat-author-name">${escapeHtml(m.user_name)}</span>
+                            ${m.is_instructor ? '<span class="badge-instructor"><i class="bi bi-patch-check-fill me-1"></i>Instructor</span>' : ''}
+                            <span class="chat-time">${m.time}</span>
+                        </div>
+                        <p class="chat-text">${escapeHtml(m.message)}</p>
+                    </div>
+                `;
+                box.appendChild(msgDiv);
+                msgInput.value = '';
+                scrollChatToBottom();
+            }
+        })
+        .catch(err => console.error('Error sending chat:', err));
+    }
+
+    function scrollChatToBottom() {
+        const box = document.getElementById('chatMessagesBox');
+        if (box) {
+            box.scrollTop = box.scrollHeight;
+        }
+    }
+
+    // 6. Certificate Actions
+    function updateCertDisplayName(name) {
+        const displayEl = document.getElementById('certDisplayStudentName');
+        if (displayEl) {
+            displayEl.textContent = name || 'Deaf Learner';
+        }
+        try {
+            localStorage.setItem('ifd_student_name', name);
+        } catch(e) {}
+    }
+
+    function printCertificate() {
+        switchCourseTab('certificate');
+        setTimeout(() => {
+            window.print();
+        }, 150);
+    }
+
+    // Page initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        const allItems = Array.from(document.querySelectorAll('.chapter-item'));
+        let currentIndex = allItems.findIndex(el => el.getAttribute('data-chapter-id') == currentPlayingChapterId);
+        if (currentIndex === -1) currentIndex = 0;
+        updateNavButtonsState(currentIndex, allItems.length);
+
+        try {
+            const savedName = localStorage.getItem('ifd_student_name');
+            if (savedName) {
+                const nameInput = document.getElementById('certStudentNameInput');
+                if (nameInput) nameInput.value = savedName;
+                updateCertDisplayName(savedName);
+            }
+        } catch(e) {}
+    });
+
+    // CSRF & Security Helpers
+    function getCsrfToken() {
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (input && input.value) return input.value;
+        return getCookie('csrftoken') || '';
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function escapeHtml(string) {
+        const entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '/': '&#x2F;'
+        };
+        return String(string).replace(/[&<>"'\/]/g, s => entityMap[s]);
+    }
+</script>
+{% endblock %}

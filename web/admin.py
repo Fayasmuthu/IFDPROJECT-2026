@@ -1,7 +1,17 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from web.models import Blog, Contactmessage, Course, CourseCategory
+from web.models import (
+    Blog,
+    Contactmessage,
+    Course,
+    CourseCategory,
+    CourseSection,
+    CourseChapter,
+    ChapterProgress,
+    CourseChatMessage,
+    CourseEnrollment,
+)
 
 # Register your models here.
 @admin.register(Blog)
@@ -45,3 +55,40 @@ class CourseAdmin(admin.ModelAdmin):
         return '-'
 
     image_preview.short_description = 'Image'
+
+
+class CourseChapterInline(admin.TabularInline):
+    model = CourseChapter
+    extra = 1
+
+
+@admin.register(CourseSection)
+class CourseSectionAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'order', 'created_at')
+    list_filter = ('course',)
+    inlines = [CourseChapterInline]
+
+
+@admin.register(CourseChapter)
+class CourseChapterAdmin(admin.ModelAdmin):
+    list_display = ('title', 'section', 'duration', 'order')
+    list_filter = ('section__course', 'section')
+
+
+@admin.register(ChapterProgress)
+class ChapterProgressAdmin(admin.ModelAdmin):
+    list_display = ('chapter', 'user', 'session_key', 'is_completed', 'completed_at')
+    list_filter = ('is_completed',)
+
+
+@admin.register(CourseChatMessage)
+class CourseChatMessageAdmin(admin.ModelAdmin):
+    list_display = ('user_name', 'course', 'is_instructor', 'created_at')
+    list_filter = ('course', 'is_instructor')
+
+
+@admin.register(CourseEnrollment)
+class CourseEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ('course', 'user', 'session_key', 'is_paid', 'amount_paid', 'payment_method', 'created_at')
+    list_filter = ('is_paid', 'payment_method', 'course')
+    search_fields = ('user__username', 'session_key', 'payment_id', 'course__title')
