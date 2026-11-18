@@ -157,20 +157,16 @@ class CourseDetailView(DetailView):
     template_name = "web/pages/course-details.html"
     context_object_name = "course"
 
+    def get_queryset(self):
+        return Course.objects.filter(status=True)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # current_product = self.get_object()
-        # product_ratings = [
-        #     {"value": 5, "percentage": int(current_product.five_rating())},
-        #     {"value": 4, "percentage": int(current_product.four_rating())},
-        #     {"value": 3, "percentage": int(current_product.three_rating())},
-        #     {"value": 2, "percentage": int(current_product.two_rating())},
-        #     {"value": 1, "percentage": int(current_product.one_rating())},
-        # ]
-        # context["reviews"] = current_product.reviews.filter(approval=True)
-        # context["review_form"] = ReviewForm()
-        # context["product_ratings"] = product_ratings
-
+        context["related_courses"] = (
+            Course.objects.filter(status=True)
+            .exclude(pk=self.object.pk)
+            .order_by("-created_at")[:3]
+        )
         return context
 
     def post(self, request, *args, **kwargs):

@@ -6,11 +6,20 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+def debug_config(value):
+    value = str(value).strip().lower()
+    if value in {"1", "true", "t", "yes", "y", "on", "debug", "development", "dev"}:
+        return True
+    if value in {"0", "false", "f", "no", "n", "off", "release", "production", "prod"}:
+        return False
+    raise ValueError(f"Invalid DEBUG value: {value}")
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = config("DEBUG", default=True, cast=debug_config)
 
 ALLOWED_HOSTS = ["*"]
 
@@ -56,6 +65,7 @@ AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
