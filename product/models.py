@@ -49,8 +49,8 @@ class Color(models.Model):
 class Category(models.Model):
     title=models.CharField(max_length=255)
     slug=models.SlugField(unique=True)
-    image=models.ImageField(upload_to="categories/img",  default=False)
-    icon_image =models.ImageField(upload_to="categories/icon", default=False)
+    image=models.ImageField(upload_to="categories/img", blank=True, null=True)
+    icon_image =models.ImageField(upload_to="categories/icon", blank=True, null=True)
     status=models.CharField(max_length=100, choices=STATUS_CHOICES,default="Published")
     active=models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -76,8 +76,8 @@ class Subcategory(models.Model):
     category =models.ForeignKey("product.Category", on_delete=models.CASCADE,related_name="subcategories")
     title= models.CharField(max_length=100)
     slug = models.SlugField()
-    image=models.ImageField(null=True, blank=True, upload_to="subcategories/img",  default=False)
-    icon_image =models.ImageField(upload_to="subcategories/icon",  default=False)
+    image=models.ImageField(null=True, blank=True, upload_to="subcategories/img")
+    icon_image =models.ImageField(null=True, blank=True, upload_to="subcategories/icon")
     color = models.CharField(max_length=7, null=True, blank=True, help_text="Hex color, e.g., #FF5733")
     active=models.BooleanField(default=True,null=True,blank=True)
     is_combo = models.BooleanField(default=False)
@@ -132,7 +132,7 @@ class Product(models.Model):
     slug = models.SlugField(unique=True)
     display_title = models.CharField(max_length=200, null=True, blank=True)
     stock=models.IntegerField(null=False,default="1")
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, blank=True, null=True, default="Generic")
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, blank=True, null=True)
     color = models.ForeignKey(Color, on_delete=models.CASCADE, blank=True, null=True)
     details = HTMLField(null=True, blank=True)
     description = HTMLField(null=True, blank=True)
@@ -224,6 +224,36 @@ class Product(models.Model):
 
     def get_delete_url(self):
         return reverse_lazy("main:product_delete", kwargs={"pk": self.pk})
+
+    def get_language_display(self):
+        t = self.title.lower()
+        if "arabic" in t or "islamic" in t:
+            return "Arabic"
+        if "illusion" in t:
+            return "Spanish"
+        return "English"
+
+    def get_badge(self):
+        if self.is_popular:
+            return "Hot!"
+        if self.is_offer:
+            return "Sale"
+        if self.is_best_seller:
+            return "Best"
+        return None
+
+    def get_display_sale_price(self):
+        p = self.get_sale_price_t()
+        if p is not None:
+            return f"${p:.2f}"
+        return "$19.00"
+
+    def get_display_regular_price(self):
+        p = self.get_regular_price_t()
+        sale = self.get_sale_price_t() or 0
+        if p is not None and p > sale:
+            return f"${p:.2f}"
+        return None
     
     def get_sizes_t(self):
         return Available.objects.filter(product=self)

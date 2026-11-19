@@ -1,0 +1,256 @@
+{% extends "web/partials/base.html" %}
+{% load static i18n %}
+
+{% block title %}Sign Up - Interactive Foundation for the Deaf (IFD){% endblock %}
+
+{% block extra_css %}
+<style>
+    .sign-lang-signup-area {
+        position: relative;
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+        background: linear-gradient(135deg, #091322 0%, #152744 50%, #0d1b2a 100%);
+        overflow: hidden;
+    }
+
+    .sign-lang-signup-area::before {
+        content: "";
+        position: absolute;
+        top: -150px;
+        left: -150px;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(37, 99, 235, 0) 70%);
+        pointer-events: none;
+    }
+
+    .sign-lang-signup-area::after {
+        content: "";
+        position: absolute;
+        bottom: -150px;
+        right: -150px;
+        width: 550px;
+        height: 550px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(56, 189, 248, 0) 70%);
+        pointer-events: none;
+    }
+
+    .floating-sign-hands {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .sign-hand {
+        position: absolute;
+        opacity: 0.14;
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2));
+        animation: floatHand 12s ease-in-out infinite alternate;
+        color: #ffffff;
+    }
+
+    .sign-hand-1 { top: 12%; left: 8%; font-size: 72px; animation-duration: 9s; }
+    .sign-hand-2 { top: 65%; left: 10%; font-size: 85px; animation-duration: 14s; }
+    .sign-hand-3 { top: 18%; right: 9%; font-size: 80px; animation-duration: 11s; }
+    .sign-hand-4 { top: 72%; right: 12%; font-size: 90px; animation-duration: 13s; }
+
+    @keyframes floatHand {
+        0% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-18px) rotate(6deg); }
+        100% { transform: translateY(12px) rotate(-6deg); }
+    }
+
+    .signup-card-box {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 480px;
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 40px 36px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+        border: 1px solid #e2e8f0;
+    }
+
+    .signup-card-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 6px;
+        letter-spacing: -0.5px;
+    }
+
+    .signup-card-subtitle {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 24px;
+        line-height: 1.5;
+    }
+
+    .signup-form .form-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 6px;
+    }
+
+    .signup-form .form-control {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
+    .signup-form .form-control:focus {
+        border-color: #2563eb;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-signup-main {
+        background-color: #1d4ed8;
+        border: 1px solid #1d4ed8;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 15px;
+        padding: 13px 20px;
+        border-radius: 8px;
+        width: 100%;
+        cursor: pointer;
+    }
+    .btn-signup-main:hover {
+        background-color: #1e40af;
+        color: #ffffff;
+    }
+
+    .btn-google-continue {
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-decoration: none;
+    }
+    .btn-google-continue:hover {
+        background-color: #f8fafc;
+        color: #0f172a;
+    }
+
+    .divider-or-row {
+        display: flex;
+        align-items: center;
+        margin: 18px 0;
+    }
+    .divider-or-row .divider-line {
+        flex-grow: 1;
+        border-top: 1px solid #e2e8f0;
+    }
+    .divider-or-row .divider-text {
+        padding: 0 16px;
+        color: #94a3b8;
+        font-size: 13px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-area fix">
+    <section class="sign-lang-signup-area">
+        <div class="floating-sign-hands">
+            <div class="sign-hand sign-hand-1">🤟</div>
+            <div class="sign-hand sign-hand-2">✋</div>
+            <div class="sign-hand sign-hand-3">✌️</div>
+            <div class="sign-hand sign-hand-4">👏</div>
+        </div>
+
+        <div class="signup-card-box">
+            <h2 class="signup-card-title">Create Account</h2>
+            <p class="signup-card-subtitle">Join IFD India to access Indian Sign Language courses and track your learning progress.</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} py-2 px-3 small rounded-3 mb-3">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" action="{% url 'accounts:signup' %}" class="signup-form">
+                {% csrf_token %}
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" name="first_name" placeholder="Mohammad">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" name="last_name" placeholder="Fayas">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="username" required placeholder="Choose a username">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" name="email" required placeholder="you@example.com">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" name="phone" placeholder="e.g. 6282134481">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" name="password" required placeholder="Create a strong password">
+                </div>
+
+                <button type="submit" class="btn-signup-main">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="text-center mt-3 mb-2 small text-secondary">
+                Already have an account? <a href="{% url 'accounts:login' %}" class="fw-bold text-primary text-decoration-none">Log in</a>
+            </div>
+
+            <div class="divider-or-row">
+                <div class="divider-line"></div>
+                <div class="divider-text">or</div>
+                <div class="divider-line"></div>
+            </div>
+
+            <a href="{% url 'accounts:google_login' %}" class="btn-google-continue">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Continue with Google</span>
+            </a>
+        </div>
+    </section>
+</main>
+{% endblock %}

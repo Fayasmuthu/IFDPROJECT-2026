@@ -569,28 +569,34 @@
                     <div class="col course-card-col">
                         <div class="lib-course-card {% if item.is_locked %}is-locked{% else %}is-unlocked{% endif %}" id="card-{{ item.course.id }}">
                             <!-- Thumbnail -->
-                            <div class="lib-thumb-box">
-                                <img src="{{ item.course.get_image_url }}" alt="{{ item.course.title }}" loading="lazy">
-                                
-                                <!-- Red Locked Overlay Badge if Locked -->
-                                {% if item.is_locked %}
-                                    <div class="locked-badge-overlay">
-                                        <i class="bi bi-lock-fill"></i> LOCKED
-                                    </div>
-                                {% else %}
-                                    <div class="unlocked-pill-badge">
-                                        <i class="bi bi-unlock-fill me-1"></i> UNLOCKED
-                                    </div>
-                                {% endif %}
+                            <a href="{% if item.is_unlocked %}{{ item.target_url }}{% else %}{% url 'web:course_checkout' item.course.slug %}{% endif %}" class="text-decoration-none">
+                                <div class="lib-thumb-box">
+                                    <img src="{{ item.course.get_image_url }}" alt="{{ item.course.title }}" loading="lazy">
+                                    
+                                    <!-- Red Locked Overlay Badge if Locked -->
+                                    {% if item.is_locked %}
+                                        <div class="locked-badge-overlay">
+                                            <i class="bi bi-lock-fill"></i> LOCKED
+                                        </div>
+                                    {% else %}
+                                        <div class="unlocked-pill-badge">
+                                            <i class="bi bi-unlock-fill me-1"></i> UNLOCKED
+                                        </div>
+                                    {% endif %}
 
-                                {% if item.course.category %}
-                                    <span class="category-tag-badge">{{ item.course.category.name }}</span>
-                                {% endif %}
-                            </div>
+                                    {% if item.course.category %}
+                                        <span class="category-tag-badge">{{ item.course.category.name }}</span>
+                                    {% endif %}
+                                </div>
+                            </a>
 
                             <!-- Card Body -->
                             <div class="lib-card-body">
-                                <h5 class="lib-course-title" title="{{ item.course.title }}">{{ item.course.title }}</h5>
+                                <h5 class="lib-course-title" title="{{ item.course.title }}">
+                                    <a href="{% if item.is_unlocked %}{{ item.target_url }}{% else %}{% url 'web:course_checkout' item.course.slug %}{% endif %}" class="text-dark text-decoration-none">
+                                        {{ item.course.title }}
+                                    </a>
+                                </h5>
                                 <div class="lib-instructor"><i class="bi bi-person me-1"></i>{{ item.course.instructor }}</div>
 
                                 <!-- Card Footer: Tag Price & Continue Button -->
@@ -610,10 +616,10 @@
                                             Continue
                                         </a>
                                     {% else %}
-                                        <!-- Locked: Opens Payment Checkout Modal -->
-                                        <button type="button" class="lib-btn-continue" onclick="openPaymentModal('{{ item.course.id }}', '{{ item.course.title|escapejs }}', '{{ item.price_int }}', '{{ item.course.slug }}', '{{ item.course.get_image_url|escapejs }}', '{{ item.course.category.name|default:'Islamic Course'|escapejs }}')">
+                                        <!-- Locked: MUST PAY FIRST -> Takes user directly to Checkout Page -->
+                                        <a href="{% url 'web:course_checkout' item.course.slug %}" class="lib-btn-continue" title="Must Pay First - Proceed to Checkout">
                                             Continue
-                                        </button>
+                                        </a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -672,39 +678,92 @@
                     </div>
                 </div>
 
-                <label class="fw-bold text-dark small mb-2">Select Payment Method:</label>
-                <div class="payment-method-item selected" onclick="selectPayMethod(this, 'UPI / GPay')">
-                    <input type="radio" name="pay_method" checked>
-                    <div>
-                        <div class="fw-semibold text-dark small"><i class="bi bi-qr-code-scan me-1 text-primary"></i> UPI / Google Pay / PhonePe / Paytm</div>
-                        <small class="text-muted" style="font-size: 11px;">Fastest & instant zero-fee unlock</small>
-                    </div>
-                </div>
-
-                <div class="payment-method-item" onclick="selectPayMethod(this, 'Credit/Debit Card')">
-                    <input type="radio" name="pay_method">
-                    <div>
-                        <div class="fw-semibold text-dark small"><i class="bi bi-credit-card-2-front-fill me-1 text-primary"></i> Credit / Debit Card (Visa, RuPay, Master)</div>
-                        <small class="text-muted" style="font-size: 11px;">All Indian & International bank cards accepted</small>
-                    </div>
-                </div>
-
-                <div class="payment-method-item" onclick="selectPayMethod(this, 'Net Banking')">
-                    <input type="radio" name="pay_method">
-                    <div>
-                        <div class="fw-semibold text-dark small"><i class="bi bi-bank2 me-1 text-primary"></i> Net Banking / Wallet</div>
-                        <small class="text-muted" style="font-size: 11px;">SBI, HDFC, ICICI, Axis & 50+ Banks</small>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <button type="button" class="payment-btn-pay" id="btnSubmitPayment" onclick="processCoursePayment()">
-                        <i class="bi bi-lock-fill"></i>
-                        <span id="btnPayText">Pay INR 499 & Unlock Instantly</span>
+                <!-- Payment Tabs: Razorpay vs Direct UPI -->
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" class="btn btn-sm flex-fill fw-bold py-2 rounded-3 active-pay-tab" id="tabRzpBtn" onclick="switchPayTab('rzp')" style="border: 2px solid #0d6efd; background: #eff6ff; color: #0d6efd;">
+                        <i class="bi bi-credit-card-2-front-fill me-1"></i> Razorpay Gateway
                     </button>
-                    <div class="text-center text-muted small mt-2" style="font-size: 12px;">
-                        <i class="bi bi-shield-check text-success me-1"></i> 256-bit Secure Encryption · Instant Unlimited Access
+                    <button type="button" class="btn btn-sm flex-fill fw-bold py-2 rounded-3 text-secondary" id="tabUpiBtn" onclick="switchPayTab('upi')" style="border: 2px solid #e2e8f0; background: #ffffff;">
+                        <i class="bi bi-qr-code me-1"></i> Direct UPI / QR
+                    </button>
+                </div>
+
+                <!-- 1. RAZORPAY PAYMENT VIEW -->
+                <div id="viewRazorpay" class="payment-method-view">
+                    <div class="p-3 rounded-3 mb-3" style="background: #f0f7ff; border: 1px solid #cce3ff;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="badge bg-primary px-2 py-1"><i class="bi bi-patch-check-fill me-1"></i> Official Gateway</span>
+                            <small class="text-muted"><i class="bi bi-lock-fill"></i> 256-bit SSL Secure</small>
+                        </div>
+                        <p class="small text-muted mb-0">Pay instantly using Credit/Debit Card, NetBanking (50+ Banks), UPI, or Digital Wallets via Razorpay.</p>
                     </div>
+
+                    <!-- Direct Razorpay Link Button -->
+                    <a href="https://rzp.io/rzp/BUMFgI51" target="_blank" class="btn w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 mb-3 shadow-sm text-white" style="background: #0c2340; border-radius: 10px; font-size: 15px;">
+                        <span>Pay via Razorpay (<span class="modalPayAmtText">INR 499</span>)</span>
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary mb-1">Razorpay Payment ID / Reference (Optional):</label>
+                        <input type="text" class="form-control form-control-sm" id="rzpPaymentRef" placeholder="e.g. pay_N2x8Y9s...">
+                    </div>
+
+                    <button type="button" class="payment-btn-pay" id="btnConfirmRzp" onclick="processCoursePayment('Razorpay (https://rzp.io/rzp/BUMFgI51)')">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>I Have Completed Payment / Unlock Course</span>
+                    </button>
+                </div>
+
+                <!-- 2. DIRECT UPI PAYMENT VIEW -->
+                <div id="viewUpi" class="payment-method-view" style="display: none;">
+                    <!-- UPI ID Box -->
+                    <div class="p-3 bg-white border rounded-3 mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <small class="text-secondary fw-semibold">Official UPI ID:</small>
+                            <span class="badge bg-success-subtle text-success">Verified Merchant</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between gap-2 p-2 rounded-2" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
+                            <span class="fw-bold font-monospace text-dark fs-6" id="upiIdValue">fayasmuthu45@okhdfcbank</span>
+                            <button type="button" class="btn btn-primary btn-sm px-3" onclick="copyUpiId()">
+                                <i class="bi bi-clipboard me-1"></i> <span id="copyUpiBtnText">Copy</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Display -->
+                    <div class="text-center p-3 rounded-3 mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <img id="upiQrCodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=fayasmuthu45@okhdfcbank%26pn=Interactive%20Foundation%20for%20the%20Deaf%26cu=INR" alt="UPI QR Code" style="width: 155px; height: 155px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 6px; background: #fff;" class="mb-2 shadow-sm">
+                        <div class="small fw-semibold text-dark">Scan with GPay, PhonePe, Paytm, or BHIM</div>
+                        <small class="text-muted" style="font-size: 11px;">Pay exact amount to: fayasmuthu45@okhdfcbank</small>
+
+                        <!-- Mobile Direct UPI Intent Link -->
+                        <div class="mt-2 d-md-none">
+                            <a id="mobileUpiIntentLink" href="upi://pay?pa=fayasmuthu45@okhdfcbank&pn=Interactive+Foundation+for+the+Deaf&cu=INR" class="btn btn-outline-dark btn-sm w-100 py-2">
+                                <i class="bi bi-phone me-1"></i> Open in UPI App
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary mb-1">UPI Transaction ID / 12-digit UTR (Optional):</label>
+                        <input type="text" class="form-control form-control-sm" id="upiUtrRef" placeholder="e.g. 431289567123">
+                    </div>
+
+                    <button type="button" class="payment-btn-pay" id="btnConfirmUpi" onclick="processCoursePayment('UPI: fayasmuthu45@okhdfcbank')">
+                        <i class="bi bi-shield-check"></i>
+                        <span>I Have Sent UPI Payment / Unlock Course</span>
+                    </button>
+                </div>
+
+                <div class="text-center text-muted small mt-3" style="font-size: 12px;">
+                    <i class="bi bi-shield-lock-fill text-success me-1"></i> Instant verification · 24/7 Access to course chapters & videos
+                </div>
+
+                <div class="mt-2 pt-2 border-top">
+                    <a id="modalFullCheckoutLink" href="#" class="btn btn-outline-danger btn-sm w-100 py-2 fw-bold text-center">
+                        <i class="bi bi-cart-check me-1"></i> Open Full Checkout Page (Cards, UPI, Billing)
+                    </a>
                 </div>
             </div>
 
@@ -744,6 +803,64 @@
         }
     }
 
+    function switchPayTab(tab) {
+        const rzpView = document.getElementById('viewRazorpay');
+        const upiView = document.getElementById('viewUpi');
+        const rzpBtn = document.getElementById('tabRzpBtn');
+        const upiBtn = document.getElementById('tabUpiBtn');
+
+        if (tab === 'rzp') {
+            rzpView.style.display = 'block';
+            upiView.style.display = 'none';
+            rzpBtn.style.border = '2px solid #0d6efd';
+            rzpBtn.style.background = '#eff6ff';
+            rzpBtn.style.color = '#0d6efd';
+            upiBtn.style.border = '2px solid #e2e8f0';
+            upiBtn.style.background = '#ffffff';
+            upiBtn.style.color = '#64748b';
+            selectedMethod = 'Razorpay (https://rzp.io/rzp/BUMFgI51)';
+        } else {
+            rzpView.style.display = 'none';
+            upiView.style.display = 'block';
+            upiBtn.style.border = '2px solid #16a34a';
+            upiBtn.style.background = '#f0fdf4';
+            upiBtn.style.color = '#16a34a';
+            rzpBtn.style.border = '2px solid #e2e8f0';
+            rzpBtn.style.background = '#ffffff';
+            rzpBtn.style.color = '#64748b';
+            selectedMethod = 'UPI: fayasmuthu45@okhdfcbank';
+        }
+    }
+
+    function copyUpiId() {
+        const upiText = 'fayasmuthu45@okhdfcbank';
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(upiText).then(() => {
+                showCopySuccess();
+            }).catch(() => fallbackCopy(upiText));
+        } else {
+            fallbackCopy(upiText);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showCopySuccess();
+    }
+
+    function showCopySuccess() {
+        const btnText = document.getElementById('copyUpiBtnText');
+        if (btnText) {
+            btnText.textContent = 'Copied!';
+            setTimeout(() => { btnText.textContent = 'Copy'; }, 2000);
+        }
+    }
+
     function openPaymentModal(courseId, title, price, slug, thumb, cat) {
         activeCourseId = courseId;
         activeCourseSlug = slug;
@@ -751,10 +868,35 @@
         document.getElementById('modalCourseTitle').textContent = title;
         document.getElementById('modalFeeRow').textContent = 'INR ' + price;
         document.getElementById('modalTotalAmount').textContent = 'INR ' + price;
-        document.getElementById('btnPayText').textContent = 'Pay INR ' + price + ' & Unlock Instantly';
+        
+        document.querySelectorAll('.modalPayAmtText').forEach(el => {
+            el.textContent = 'INR ' + price;
+        });
 
         if (thumb) document.getElementById('modalCourseThumb').src = thumb;
         if (cat) document.getElementById('modalCourseCategory').textContent = cat;
+
+        // Dynamic QR code for exact course amount
+        const cleanTitle = encodeURIComponent(title.substring(0, 30));
+        const upiQrData = encodeURIComponent(`upi://pay?pa=fayasmuthu45@okhdfcbank&pn=IFD+India&am=${price}&cu=INR&tn=${cleanTitle}`);
+        document.getElementById('upiQrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${upiQrData}`;
+
+        const mobileIntent = document.getElementById('mobileUpiIntentLink');
+        if (mobileIntent) {
+            mobileIntent.href = `upi://pay?pa=fayasmuthu45@okhdfcbank&pn=Interactive+Foundation+for+the+Deaf&am=${price}&cu=INR&tn=${cleanTitle}`;
+        }
+
+        // Reset inputs
+        const rzpRef = document.getElementById('rzpPaymentRef');
+        if (rzpRef) rzpRef.value = '';
+        const upiRef = document.getElementById('upiUtrRef');
+        if (upiRef) upiRef.value = '';
+
+        const checkoutLink = document.getElementById('modalFullCheckoutLink');
+        if (checkoutLink) checkoutLink.href = '/en/course/' + slug + '/checkout/';
+
+        // Default to Razorpay tab
+        switchPayTab('rzp');
 
         document.getElementById('modalCheckoutBody').style.display = 'block';
         document.getElementById('modalSuccessBody').style.display = 'none';
@@ -772,24 +914,35 @@
         }
     }
 
-    function selectPayMethod(el, method) {
-        document.querySelectorAll('.payment-method-item').forEach(item => {
-            item.classList.remove('selected');
-            const radio = item.querySelector('input[type="radio"]');
-            if (radio) radio.checked = false;
-        });
-        el.classList.add('selected');
-        const r = el.querySelector('input[type="radio"]');
-        if (r) r.checked = true;
-        selectedMethod = method;
-    }
+    function processCoursePayment(methodOverride) {
+        const method = methodOverride || selectedMethod;
+        let paymentRef = '';
 
-    function processCoursePayment() {
-        const payBtn = document.getElementById('btnSubmitPayment');
-        const btnText = document.getElementById('btnPayText');
+        let activeBtn = null;
+        if (method.includes('Razorpay')) {
+            activeBtn = document.getElementById('btnConfirmRzp');
+            const rzpInput = document.getElementById('rzpPaymentRef');
+            paymentRef = rzpInput ? rzpInput.value.trim() : '';
+            if (!paymentRef || paymentRef.length < 5) {
+                alert('⚠️ MUST PAY FIRST: You cannot unlock without completing payment. Please click to pay via Razorpay (https://rzp.io/rzp/BUMFgI51) and enter your Payment ID.');
+                if (rzpInput) rzpInput.focus();
+                return;
+            }
+        } else {
+            activeBtn = document.getElementById('btnConfirmUpi');
+            const upiInput = document.getElementById('upiUtrRef');
+            paymentRef = upiInput ? upiInput.value.trim() : '';
+            if (!paymentRef || paymentRef.length < 5) {
+                alert('⚠️ MUST PAY FIRST: You cannot unlock without completing payment. Please transfer to fayasmuthu45@okhdfcbank and enter your 12-digit UPI UTR number.');
+                if (upiInput) upiInput.focus();
+                return;
+            }
+        }
 
-        payBtn.disabled = true;
-        btnText.textContent = 'Processing Payment...';
+        if (activeBtn) {
+            activeBtn.disabled = true;
+            activeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Verifying Payment & Unlocking...';
+        }
 
         fetch(unlockApiUrl, {
             method: 'POST',
@@ -800,7 +953,8 @@
             body: JSON.stringify({
                 course_id: activeCourseId,
                 course_slug: activeCourseSlug,
-                payment_method: selectedMethod
+                payment_method: method,
+                payment_id: paymentRef
             })
         })
         .then(res => res.json())
@@ -817,14 +971,18 @@
                 }, 1200);
             } else {
                 alert(data.message || 'Payment could not be completed.');
-                payBtn.disabled = false;
-                btnText.textContent = 'Retry Payment';
+                if (activeBtn) {
+                    activeBtn.disabled = false;
+                    activeBtn.innerHTML = '<i class="bi bi-shield-check"></i> <span>Retry Payment</span>';
+                }
             }
         })
         .catch(err => {
             console.error('Payment error:', err);
-            payBtn.disabled = false;
-            btnText.textContent = 'Retry Payment';
+            if (activeBtn) {
+                activeBtn.disabled = false;
+                activeBtn.innerHTML = '<i class="bi bi-shield-check"></i> <span>Retry Payment</span>';
+            }
         });
     }
 

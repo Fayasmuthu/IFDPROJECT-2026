@@ -11,6 +11,10 @@ from web.models import (
     ChapterProgress,
     CourseChatMessage,
     CourseEnrollment,
+    QuizAttempt,
+    CourseAnnouncement,
+    CourseAssignment,
+    CourseCertificate,
 )
 
 # Register your models here.
@@ -92,3 +96,31 @@ class CourseEnrollmentAdmin(admin.ModelAdmin):
     list_display = ('course', 'user', 'session_key', 'is_paid', 'amount_paid', 'payment_method', 'created_at')
     list_filter = ('is_paid', 'payment_method', 'course')
     search_fields = ('user__username', 'session_key', 'payment_id', 'course__title')
+
+
+@admin.register(QuizAttempt)
+class QuizAttemptAdmin(admin.ModelAdmin):
+    list_display = ('quiz_title', 'user', 'course', 'earned_marks', 'total_marks', 'result', 'attempted_at')
+    list_filter = ('result', 'course', 'attempted_at')
+    search_fields = ('quiz_title', 'user__username', 'user__email')
+
+
+@admin.register(CourseAnnouncement)
+class CourseAnnouncementAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'instructor', 'created_at')
+    list_filter = ('course', 'created_at')
+    search_fields = ('title', 'content')
+
+
+@admin.register(CourseAssignment)
+class CourseAssignmentAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'total_marks', 'total_submit', 'due_date', 'created_at')
+    list_filter = ('course', 'due_date')
+    search_fields = ('title', 'description')
+
+
+@admin.register(CourseCertificate)
+class CourseCertificateAdmin(admin.ModelAdmin):
+    list_display = ('certificate_id', 'student', 'course', 'grade', 'issued_date')
+    list_filter = ('course', 'issued_date')
+    search_fields = ('certificate_id', 'student__username', 'student__email')

@@ -811,51 +811,92 @@
                             </div>
                         </div>
 
-                        <button class="btn-review-course" id="heroActionBtn" onclick="startOrScrollVideo()">
-                            <i class="bi bi-play-fill"></i>
-                            <span id="heroActionBtnText">{% if all_completed %}Review course{% elif progress_percent > 0 %}Continue course{% else %}Start course{% endif %}</span>
-                        </button>
+                        {% if is_course_locked %}
+                            <button class="btn btn-danger py-2 px-4 fw-bold rounded-3 shadow-sm d-inline-flex align-items-center gap-2" onclick="openCoursePaywallModal()">
+                                <i class="bi bi-lock-fill"></i>
+                                <span>MUST PAY INR {{ course_price }} TO UNLOCK</span>
+                            </button>
+                        {% else %}
+                            <button class="btn-review-course" id="heroActionBtn" onclick="startOrScrollVideo()">
+                                <i class="bi bi-play-fill"></i>
+                                <span id="heroActionBtnText">{% if all_completed %}Review course{% elif progress_percent > 0 %}Continue course{% else %}Start course{% endif %}</span>
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
-            <!-- Video Player Container (Supports both HTML5 MP4 & YouTube/Vimeo Embeds) -->
-            <div class="video-player-container" id="videoPlayerBox">
-                <div class="video-player-header">
-                    <div class="current-title">
-                        <i class="bi bi-camera-video-fill text-primary"></i>
-                        <span id="playerChapterTitle">
-                            {% if first_video %}
-                                Chapter {{ first_video.order }}: {{ first_video.title }}
-                            {% else %}
-                                Islamic Studies Video Lesson
-                            {% endif %}
-                        </span>
+            {% if is_course_locked %}
+                <!-- LOCKED COURSE VIDEO PAYWALL -->
+                <div class="video-player-container d-block" id="videoPlayerBox" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); padding: 48px 24px; text-align: center; border-radius: 16px; margin-bottom: 30px; border: 2px solid #ef4444; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15);">
+                    <div class="mb-3" style="font-size: 52px; color: #ef4444;">
+                        <i class="bi bi-shield-lock-fill"></i>
                     </div>
-                    <button class="close-player-btn" onclick="closeVideoPlayer()" title="Close Player">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
+                    <h3 class="fw-bold text-white mb-2" style="letter-spacing: -0.5px;">COURSE VIDEOS LOCKED — MUST PAY TO WATCH</h3>
+                    <p class="text-secondary mx-auto mb-4" style="max-width: 520px; font-size: 15px;">
+                        Full video lessons, sign language demonstrations, interactive assessments, and completion certificate are strictly locked. You must complete enrollment payment first.
+                    </p>
+
+                    <div class="d-inline-flex align-items-center gap-2 bg-dark px-4 py-2 rounded-pill mb-4 border border-secondary">
+                        <span class="text-muted small">Required Enrollment Fee:</span>
+                        <span class="text-warning fw-bold fs-5">INR {{ course_price }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="{% url 'web:course_checkout' course.slug %}" class="btn btn-danger px-4 py-3 fw-bold d-inline-flex align-items-center gap-2 shadow-sm text-white" style="border-radius: 10px; background-color: #dc2626; border-color: #dc2626;">
+                            <i class="bi bi-cart-check-fill"></i> Go to Checkout (UPI / Cards)
+                        </a>
+                        <a href="https://rzp.io/rzp/BUMFgI51" target="_blank" class="btn btn-primary px-4 py-3 fw-bold d-inline-flex align-items-center gap-2 text-white shadow-sm" style="border-radius: 10px; background: #0c2340; border-color: #0c2340;">
+                            <i class="bi bi-credit-card-2-front-fill"></i> Pay via Razorpay (INR {{ course_price }}) <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                        <button type="button" class="btn btn-success px-4 py-3 fw-bold d-inline-flex align-items-center gap-2 shadow-sm" onclick="openCoursePaywallModal()" style="border-radius: 10px;">
+                            <i class="bi bi-qr-code me-1"></i> Pay via UPI (fayasmuthu45@okhdfcbank)
+                        </button>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top border-secondary text-secondary small">
+                        Already completed payment? <a href="javascript:void(0)" onclick="openCoursePaywallModal()" class="text-warning fw-bold text-decoration-underline ms-1">Enter your Payment ID / UTR to Unlock Now</a>
+                    </div>
                 </div>
-                <div class="main-video-wrapper">
-                    <video id="courseVideoPlayer" controls playsinline poster="{% static 'assets/img/home/abouts.png' %}">
-                        <source id="videoSource" src="{% if first_video %}{{ first_video.video_url }}{% else %}https://www.w3schools.com/html/mov_bbb.mp4{% endif %}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <iframe id="courseIframePlayer" style="display: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            {% else %}
+                <!-- Video Player Container (Supports both HTML5 MP4 & YouTube/Vimeo Embeds) -->
+                <div class="video-player-container" id="videoPlayerBox">
+                    <div class="video-player-header">
+                        <div class="current-title">
+                            <i class="bi bi-camera-video-fill text-primary"></i>
+                            <span id="playerChapterTitle">
+                                {% if first_video %}
+                                    Chapter {{ first_video.order }}: {{ first_video.title }}
+                                {% else %}
+                                    Islamic Studies Video Lesson
+                                {% endif %}
+                            </span>
+                        </div>
+                        <button class="close-player-btn" onclick="closeVideoPlayer()" title="Close Player">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="main-video-wrapper">
+                        <video id="courseVideoPlayer" controls playsinline poster="{% static 'assets/img/home/abouts.png' %}">
+                            <source id="videoSource" src="{% if first_video %}{{ first_video.video_url }}{% else %}https://www.w3schools.com/html/mov_bbb.mp4{% endif %}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <iframe id="courseIframePlayer" style="display: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-player-footer">
+                        <button class="btn-nav-video" id="prevVideoBtn" onclick="navigateChapter(-1)">
+                            <i class="bi bi-chevron-left me-1"></i> Previous Chapter
+                        </button>
+                        <button class="btn-nav-video {% if first_video and first_video.is_completed %}bg-success{% else %}bg-primary{% endif %} text-white" id="playerToggleCompleteBtn" onclick="toggleCurrentPlayingChapter()">
+                            <i class="bi {% if first_video and first_video.is_completed %}bi-check-circle-fill{% else %}bi-circle{% endif %} me-1"></i>
+                            <span>{% if first_video and first_video.is_completed %}Completed{% else %}Mark as Completed{% endif %}</span>
+                        </button>
+                        <button class="btn-nav-video" id="nextVideoBtn" onclick="navigateChapter(1)">
+                            Next Chapter <i class="bi bi-chevron-right ms-1"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="video-player-footer">
-                    <button class="btn-nav-video" id="prevVideoBtn" onclick="navigateChapter(-1)">
-                        <i class="bi bi-chevron-left me-1"></i> Previous Chapter
-                    </button>
-                    <button class="btn-nav-video {% if first_video and first_video.is_completed %}bg-success{% else %}bg-primary{% endif %} text-white" id="playerToggleCompleteBtn" onclick="toggleCurrentPlayingChapter()">
-                        <i class="bi {% if first_video and first_video.is_completed %}bi-check-circle-fill{% else %}bi-circle{% endif %} me-1"></i>
-                        <span>{% if first_video and first_video.is_completed %}Completed{% else %}Mark as Completed{% endif %}</span>
-                    </button>
-                    <button class="btn-nav-video" id="nextVideoBtn" onclick="navigateChapter(1)">
-                        Next Chapter <i class="bi bi-chevron-right ms-1"></i>
-                    </button>
-                </div>
-            </div>
+            {% endif %}
 
             <!-- Tab Navigation Bar (Content, Chat, Certificate) -->
             <div class="course-nav-tabs">
@@ -907,22 +948,34 @@
                             <!-- Chapters List -->
                             <ul class="chapter-list" id="chapterList-{{ sec.id }}" style="display: {% if forloop.counter == 3 %}block{% else %}none{% endif %};">
                                 {% for ch in sec.chapters %}
-                                    <li class="chapter-item {% if forloop.parentloop.first and forloop.first %}active-playing{% endif %}" id="chItem-{{ ch.id }}" data-chapter-id="{{ ch.id }}" data-video-url="{{ ch.video_url }}" data-chapter-title="Chapter {{ ch.order }}: {{ ch.title }}">
-                                        <div class="chapter-left" onclick="playChapterVideo('{{ ch.id }}', '{{ ch.video_url }}', 'Chapter {{ ch.order }}: {{ ch.title|escapejs }}')">
-                                            <div class="chapter-play-icon">
-                                                <i class="bi bi-play-circle"></i>
+                                    <li class="chapter-item {% if forloop.parentloop.first and forloop.first and not is_course_locked %}active-playing{% endif %}" id="chItem-{{ ch.id }}" data-chapter-id="{{ ch.id }}" data-video-url="{{ ch.video_url }}" data-chapter-title="Chapter {{ ch.order }}: {{ ch.title }}">
+                                        <div class="chapter-left" onclick="{% if is_course_locked %}handleLockedCourseClick(){% else %}playChapterVideo('{{ ch.id }}', '{{ ch.video_url }}', 'Chapter {{ ch.order }}: {{ ch.title|escapejs }}'){% endif %}">
+                                            <div class="chapter-play-icon {% if is_course_locked %}text-danger border border-danger{% endif %}">
+                                                {% if is_course_locked %}
+                                                    <i class="bi bi-lock-fill text-danger"></i>
+                                                {% else %}
+                                                    <i class="bi bi-play-circle"></i>
+                                                {% endif %}
                                             </div>
                                             <div class="chapter-info">
-                                                <h6>Chapter {{ ch.order }}: {{ ch.title }}</h6>
+                                                <h6>Chapter {{ ch.order }}: {{ ch.title }} {% if is_course_locked %}<span class="badge bg-danger text-white ms-1" style="font-size: 10px;">MUST PAY</span>{% endif %}</h6>
                                                 <span class="duration"><i class="bi bi-clock me-1"></i>{{ ch.duration }}</span>
                                             </div>
                                         </div>
                                         <div class="chapter-right">
-                                            <button class="chapter-checkbox-btn" onclick="toggleChapterCheckbox('{{ ch.id }}', event)" title="{% if ch.is_completed %}Mark as incomplete{% else %}Mark as completed{% endif %}">
-                                                <div class="chapter-check-icon {% if ch.is_completed %}checked{% else %}unchecked{% endif %}" id="chCheckIcon-{{ ch.id }}">
-                                                    <i class="bi bi-check-lg"></i>
-                                                </div>
-                                            </button>
+                                            {% if is_course_locked %}
+                                                <button class="chapter-checkbox-btn" onclick="handleLockedCourseClick()" title="Must Pay to unlock">
+                                                    <div class="chapter-check-icon unchecked" style="border-color: #ef4444; color: #ef4444;">
+                                                        <i class="bi bi-lock-fill" style="display:inline-block !important; font-size:11px;"></i>
+                                                    </div>
+                                                </button>
+                                            {% else %}
+                                                <button class="chapter-checkbox-btn" onclick="toggleChapterCheckbox('{{ ch.id }}', event)" title="{% if ch.is_completed %}Mark as incomplete{% else %}Mark as completed{% endif %}">
+                                                    <div class="chapter-check-icon {% if ch.is_completed %}checked{% else %}unchecked{% endif %}" id="chCheckIcon-{{ ch.id }}">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </div>
+                                                </button>
+                                            {% endif %}
                                         </div>
                                     </li>
                                 {% endfor %}
@@ -1086,6 +1139,69 @@
 
         </div>
     </section>
+
+    <!-- Paywall Modal for Locked Course -->
+    <div class="custom-modal-backdrop" id="coursePaywallModal" style="display: none;" onclick="if(event.target.id==='coursePaywallModal')closeCoursePaywallModal()">
+        <div class="custom-modal-card" style="max-width: 500px; margin: 20px auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+            <div class="p-3 bg-dark text-white d-flex align-items-center justify-content-between">
+                <h5 class="mb-0 fs-6 fw-bold"><i class="bi bi-shield-lock-fill text-danger me-1"></i> Unlock Course Access</h5>
+                <button type="button" class="modal-close-btn text-white fs-4" onclick="closeCoursePaywallModal()">&times;</button>
+            </div>
+            <div class="p-4">
+                <div class="alert alert-danger py-2 px-3 small mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Must Pay First:</strong> Complete your payment of INR {{ course_price }} to unlock this course.
+                </div>
+
+                <!-- Tabs: Razorpay vs Direct UPI -->
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" class="btn btn-sm flex-fill fw-bold py-2 rounded-3" id="tabRzpBtnCourse" onclick="switchCoursePayTab('rzp')" style="border: 2px solid #0d6efd; background: #eff6ff; color: #0d6efd;">
+                        <i class="bi bi-credit-card-2-front-fill me-1"></i> Razorpay Gateway
+                    </button>
+                    <button type="button" class="btn btn-sm flex-fill fw-bold py-2 rounded-3 text-secondary" id="tabUpiBtnCourse" onclick="switchCoursePayTab('upi')" style="border: 2px solid #e2e8f0; background: #ffffff;">
+                        <i class="bi bi-qr-code me-1"></i> Direct UPI / QR
+                    </button>
+                </div>
+
+                <!-- 1. RAZORPAY -->
+                <div id="viewCourseRzp">
+                    <a href="https://rzp.io/rzp/BUMFgI51" target="_blank" class="btn w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 mb-3 shadow-sm text-white" style="background: #0c2340; border-radius: 10px; font-size: 15px;">
+                        <span>Pay INR {{ course_price }} via Razorpay</span>
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1"><span class="text-danger">* Required:</span> Enter Razorpay Payment ID (e.g. pay_...):</label>
+                        <input type="text" class="form-control" id="courseRzpRefInput" placeholder="pay_...">
+                    </div>
+                    <button type="button" class="btn btn-success w-100 py-3 fw-bold" onclick="submitCoursePayment('Razorpay (https://rzp.io/rzp/BUMFgI51)')">
+                        <i class="bi bi-check-circle-fill me-1"></i> Verify Payment & Unlock
+                    </button>
+                </div>
+
+                <!-- 2. UPI -->
+                <div id="viewCourseUpi" style="display: none;">
+                    <div class="p-3 bg-light border rounded-3 mb-3">
+                        <small class="text-muted d-block mb-1">Official UPI ID:</small>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="fw-bold font-monospace text-dark fs-6">fayasmuthu45@okhdfcbank</span>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="navigator.clipboard.writeText('fayasmuthu45@okhdfcbank'); alert('UPI ID Copied!');">Copy</button>
+                        </div>
+                    </div>
+                    <div class="text-center p-2 rounded-3 mb-3 bg-light border">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=fayasmuthu45@okhdfcbank%26pn=Interactive%20Foundation%20for%20the%20Deaf%26am={{ course_price }}%26cu=INR" alt="QR" style="width: 145px; height: 145px; background: #fff; padding: 4px; border-radius: 8px;">
+                        <div class="small fw-semibold text-dark mt-1">Scan with GPay / PhonePe / Paytm</div>
+                        <small class="text-muted">Exact Amount: INR {{ course_price }}</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1"><span class="text-danger">* Required:</span> Enter 12-digit UPI UTR / Reference No:</label>
+                        <input type="text" class="form-control" id="courseUpiRefInput" placeholder="12-digit UTR">
+                    </div>
+                    <button type="button" class="btn btn-success w-100 py-3 fw-bold" onclick="submitCoursePayment('UPI: fayasmuthu45@okhdfcbank')">
+                        <i class="bi bi-shield-check me-1"></i> Verify UPI Payment & Unlock
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 {% endblock %}
 
@@ -1094,8 +1210,97 @@
     // State variables
     let currentPlayingChapterId = '{{ first_video.id|default:"" }}';
     const courseId = '{{ course.id }}';
+    const isCourseLocked = {% if is_course_locked %}true{% else %}false{% endif %};
+    const coursePrice = {{ course_price|default:0 }};
+    const unlockUrl = "{% url 'web:course_pay_unlock' %}";
     const toggleProgressUrl = "{% url 'web:toggle_chapter_progress' %}";
     const sendChatUrl = "{% url 'web:send_course_chat' %}";
+
+    function handleLockedCourseClick() {
+        alert('⚠️ MUST PAY FIRST: This course is locked. You must complete payment of INR ' + coursePrice + ' via Razorpay or UPI before unlocking video lessons.');
+        openCoursePaywallModal();
+    }
+
+    function openCoursePaywallModal() {
+        const modal = document.getElementById('coursePaywallModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeCoursePaywallModal() {
+        const modal = document.getElementById('coursePaywallModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function switchCoursePayTab(tab) {
+        const rzp = document.getElementById('viewCourseRzp');
+        const upi = document.getElementById('viewCourseUpi');
+        const rzpBtn = document.getElementById('tabRzpBtnCourse');
+        const upiBtn = document.getElementById('tabUpiBtnCourse');
+        if (tab === 'rzp') {
+            rzp.style.display = 'block';
+            upi.style.display = 'none';
+            rzpBtn.style.background = '#eff6ff';
+            rzpBtn.style.color = '#0d6efd';
+            rzpBtn.style.border = '2px solid #0d6efd';
+            upiBtn.style.background = '#ffffff';
+            upiBtn.style.color = '#64748b';
+            upiBtn.style.border = '2px solid #e2e8f0';
+        } else {
+            rzp.style.display = 'none';
+            upi.style.display = 'block';
+            upiBtn.style.background = '#f0fdf4';
+            upiBtn.style.color = '#16a34a';
+            upiBtn.style.border = '2px solid #16a34a';
+            rzpBtn.style.background = '#ffffff';
+            rzpBtn.style.color = '#64748b';
+            rzpBtn.style.border = '2px solid #e2e8f0';
+        }
+    }
+
+    function submitCoursePayment(method) {
+        let ref = '';
+        if (method.includes('Razorpay')) {
+            ref = (document.getElementById('courseRzpRefInput').value || '').trim();
+            if (!ref || ref.length < 5) {
+                alert('⚠️ MUST PAY FIRST: You cannot unlock without completing payment. Please pay via Razorpay (https://rzp.io/rzp/BUMFgI51) and enter your Payment ID.');
+                document.getElementById('courseRzpRefInput').focus();
+                return;
+            }
+        } else {
+            ref = (document.getElementById('courseUpiRefInput').value || '').trim();
+            if (!ref || ref.length < 5) {
+                alert('⚠️ MUST PAY FIRST: You cannot unlock without completing payment. Please send UPI payment to fayasmuthu45@okhdfcbank and enter your 12-digit UTR reference number.');
+                document.getElementById('courseUpiRefInput').focus();
+                return;
+            }
+        }
+
+        fetch(unlockUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                course_id: courseId,
+                payment_method: method,
+                payment_id: ref
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('🎉 Payment Verified! Course unlocked successfully.');
+                window.location.reload();
+            } else {
+                alert(data.message || 'Payment verification failed.');
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Payment verification failed.');
+        });
+    }
 
     // 1. Tab Switching
     function switchCourseTab(tabName) {
@@ -1130,6 +1335,10 @@
 
     // 3. Play Video Functionality (Supports HTML5 & YouTube/Vimeo)
     function startOrScrollVideo() {
+        if (isCourseLocked) {
+            handleLockedCourseClick();
+            return;
+        }
         switchCourseTab('content');
         const playerBox = document.getElementById('videoPlayerBox');
         playerBox.style.display = 'block';
@@ -1276,6 +1485,11 @@
     function toggleChapterCheckbox(chId, event) {
         if (event) {
             event.stopPropagation();
+        }
+
+        if (isCourseLocked) {
+            handleLockedCourseClick();
+            return;
         }
 
         const iconEl = document.getElementById('chCheckIcon-' + chId);

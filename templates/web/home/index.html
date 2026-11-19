@@ -1,6 +1,106 @@
 {% extends 'web/partials/base.html' %}
 {% load static i18n %}
 
+{% block extra_css %}
+<style>
+    .courses-swiper-active .swiper-slide {
+        height: auto !important;
+        display: flex !important;
+    }
+    .courses__item {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid #eef2f6 !important;
+        overflow: hidden !important;
+        transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+    }
+    .courses__item:hover {
+        transform: translateY(-4px) !important;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
+    }
+    .courses__item-thumb {
+        position: relative !important;
+        height: 190px !important;
+        width: 100% !important;
+        background: #e2e8f0 !important;
+        overflow: hidden !important;
+        flex-shrink: 0 !important;
+    }
+    .courses__item-thumb img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+    }
+    .courses__item-content {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-grow: 1 !important;
+        padding: 20px !important;
+    }
+    .courses__item-content .title {
+        min-height: 48px !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        line-height: 1.4 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        margin-bottom: 8px !important;
+    }
+    .course-lock-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        z-index: 3;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .course-lock-badge.locked {
+        background: #ef4444;
+        color: #ffffff;
+    }
+    .course-lock-badge.unlocked {
+        background: #10b981;
+        color: #ffffff;
+    }
+    .courses__item-bottom {
+        margin-top: auto !important;
+        padding-top: 15px !important;
+        border-top: 1px solid #f1f5f9 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+    .courses__item-bottom .button a.btn-course-continue.locked {
+        background: #f59e0b !important;
+        color: #1e1b4b !important;
+        box-shadow: 3px 3px 0px 0px #b45309 !important;
+        font-weight: 700;
+    }
+    .courses__item-bottom .button a.btn-course-continue.unlocked {
+        background: #10b981 !important;
+        color: #ffffff !important;
+        box-shadow: 3px 3px 0px 0px #047857 !important;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
 
@@ -335,21 +435,25 @@
 
                                     <div class="col-md-4">
                                         <div class="book-card">
-                                            <img src="{% static "assets/img/home/book.png" %}" alt="About Us">
+                                            <a href="{% url 'web:book_list' %}">
+                                                <img src="{% static "assets/img/home/book.png" %}" alt="Arabic Learning in Sign Language">
+                                            </a>
                                         </div>
                                     </div>
 
                                     <div class="col-md-4">
                                         <div class="book-card">
-                                            <img src="{% static "assets/img/home/book1.png" %}" class="img-fluid" alt="About Us">
-                                            <!-- <img src="{% static "assets/img/home/book1.png" %}" alt="About Us"> -->
-
+                                            <a href="{% url 'web:book_list' %}">
+                                                <img src="{% static "assets/img/home/book1.png" %}" class="img-fluid" alt="Easy Arabic Course for the Deaf">
+                                            </a>
                                         </div>
                                     </div>
 
                                     <div class="col-md-4">
                                         <div class="book-card">
-                                            <img src="{% static "assets/img/home/book2.png" %}" class="img-fluid" alt="About Us">
+                                            <a href="{% url 'web:book_list' %}">
+                                                <img src="{% static "assets/img/home/book2.png" %}" class="img-fluid" alt="Islamic Studies Course Book">
+                                            </a>
                                         </div>
                                     </div>
 
@@ -362,22 +466,25 @@
 
                                     <div class="col-md-4">
                                         <div class="book-card">
-                                            <img src="{% static "assets/img/home/book.png" %}" class="img-fluid" alt="About Us">
+                                            <a href="{% url 'web:book_list' %}">
+                                                <img src="{% static "assets/img/home/book.png" %}" class="img-fluid" alt="Arabic Learning in Sign Language">
+                                            </a>
                                         </div>
                                     </div>
 
                                     <div class="col-md-4">
                                         <div class="book-card">
-                                            <!-- <img src="images/book5.png" %}" class="img-fluid" alt=""> -->
-                                            <img src="{% static "assets/img/home/book2.png" %}" class="img-fluid" alt="About Us">
-                                            
+                                            <a href="{% url 'web:book_list' %}">
+                                                <img src="{% static "assets/img/home/book2.png" %}" class="img-fluid" alt="Islamic Studies Course Book">
+                                            </a>
                                         </div>
                                     </div>
 
                                     <div class="col-md-4">
                                         <div class="book-card">
-                                            <img src="{% static "assets/img/home/book1.png" %}" class="img-fluid" alt="About Us">
-
+                                            <a href="{% url 'web:book_list' %}">
+                                                <img src="{% static "assets/img/home/book1.png" %}" class="img-fluid" alt="Easy Arabic Course for the Deaf">
+                                            </a>
                                         </div>
                                     </div>
 
@@ -419,7 +526,7 @@
                             with easy explanations and illustrations.
                         </p>
 
-                        <a href="#" class="btn-books">
+                        <a href="{% url 'web:book_list' %}" class="btn-books">
                             VIEW ALL BOOKS
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -443,21 +550,14 @@
                         <div class="section__title text-center mb-40">
                             <span class="sub-title">Top Class Courses</span>
                             <h2 class="title">Explore Our World's Best Courses</h2>
-                            <p class="desc">When known printer took a galley of t</p>
+                            <p class="desc">Empowering the Deaf community with structured Islamic curriculum and sign language mastery.</p>
                         </div>
                         <div class="courses__nav">
                             <ul class="nav nav-tabs" id="courseTab" role="tablist">
-                                <!-- <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-tab-pane" type="button"
-                                        role="tab" aria-controls="all-tab-pane" aria-selected="true">
-                                        All Courses
-                                    </button>
-                                </li> -->
-                                
                                 {% for category in course_categories %}
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link {% if forloop.first %}active{% endif %} " id="design-tab" data-bs-toggle="tab" data-bs-target="#course-{{ category.id }}" type="button"
-                                        role="tab" aria-controls="design-tab-pane" aria-selected="false">
+                                    <button class="nav-link {% if forloop.first %}active{% endif %}" id="cat-tab-{{ category.id }}" data-bs-toggle="tab" data-bs-target="#course-{{ category.id }}" type="button"
+                                        role="tab" aria-controls="course-{{ category.id }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
                                         {{ category.name }}
                                     </button>
                                 </li>
@@ -470,49 +570,70 @@
             <div class="tab-content" id="courseTabContent">
                 
                 {% for category in course_categories %}
-                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="course-{{ category.id }}" role="tabpanel" aria-labelledby="design-tab" tabindex="0">
+                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="course-{{ category.id }}" role="tabpanel" aria-labelledby="cat-tab-{{ category.id }}" tabindex="0">
                     <div class="swiper courses-swiper-active">
                         <div class="swiper-wrapper">
                             {% for course in category.courses %}
                             <div class="swiper-slide">
                                 <div class="courses__item shine__animate-item">
                                     <div class="courses__item-thumb">
-                                        <a href="course-details.html" class="shine__animate-link">
-                                            {% if course.image %}
-                                                <img src="{{ course.image.url }}" alt="img">
-                                            {% else %}
-                                                <img src="{% static 'assets/img/courses/course_thumb01.jpg' %}" alt="img">
-                                            {% endif %}
+                                        <a href="{{ course.continue_url }}" class="shine__animate-link">
+                                            <img src="{{ course.get_image_url }}" alt="{{ course.title }}" onerror="this.onerror=null;this.src='{% static "assets/img/courses/course_thumb01.jpg" %}';">
                                         </a>
+                                        <!-- Lock and Unlock Status Badge -->
+                                        {% if course.is_locked %}
+                                            <div class="course-lock-badge locked">
+                                                <i class="fas fa-lock"></i> LOCKED
+                                            </div>
+                                        {% else %}
+                                            <div class="course-lock-badge unlocked">
+                                                <i class="fas fa-unlock"></i> UNLOCKED
+                                            </div>
+                                        {% endif %}
                                     </div>
                                     <div class="courses__item-content">
                                         <ul class="courses__item-meta list-wrap">
                                             <li class="courses__item-tag">
-                                                <a href="course.html">Marketing</a>
+                                                <a href="{% url 'web:course_list' %}">{{ category.name }}</a>
                                             </li>
-                                            <li class="avg-rating"><i class="fas fa-star"></i> (4.3 Reviews)</li>
+                                            <li class="avg-rating"><i class="fas fa-star text-warning"></i> ({{ course.rating|default:"4.8" }} Reviews)</li>
                                         </ul>
-                                        <h5 class="title"><a href="course-details.html">{{ course.name }}</a></h5>
-                                        <p class="author">By <a href="#">David Millar</a></p>
+                                        <h5 class="title"><a href="{{ course.continue_url }}">{{ course.title }}</a></h5>
+                                        <p class="author">By <a href="{% url 'web:course_list' %}">{{ course.instructor|default:"IFD Faculty" }}</a></p>
                                         <div class="courses__item-bottom">
                                             <div class="button">
-                                                <a href="course-details.html">
-                                                    <span class="text">Enroll Now</span>
-                                                    <i class="flaticon-arrow-right"></i>
-                                                </a>
+                                                {% if course.is_unlocked %}
+                                                    <a href="{{ course.target_url }}" class="btn-course-continue unlocked" title="Continue Learning - Open Course Player">
+                                                        <span class="text">Continue</span>
+                                                        <i class="fas fa-play ms-1"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{{ course.checkout_url }}" class="btn-course-continue locked" title="Locked - Click to Pay & Unlock">
+                                                        <span class="text">Continue (Pay)</span>
+                                                        <i class="fas fa-lock ms-1"></i>
+                                                    </a>
+                                                {% endif %}
                                             </div>
-                                            <h5 class="price">${{ course.price }}</h5>
+                                            {% if course.is_unlocked %}
+                                                <h5 class="price text-success"><i class="fas fa-check-circle me-1"></i>Enrolled</h5>
+                                            {% elif course.price == 0 or course.price_type == 'free' %}
+                                                <h5 class="price text-success">Free</h5>
+                                            {% else %}
+                                                <h5 class="price">₹{{ course.price }}</h5>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            {% empty %}
+                            <div class="col-12 text-center py-4 text-muted">No courses available in this category.</div>
                             {% endfor %}
                             
                         </div>
                     </div>
                     <div class="courses__nav">
-                        <div class="courses-button-prev"><i class="flaticon-arrow-right"></i></div>
-                        <div class="courses-button-next"><i class="flaticon-arrow-right"></i></div>
+                        <div class="courses-button-prev"><i class="fas fa-arrow-left"></i></div>
+                        <div class="courses-button-next"><i class="fas fa-arrow-right"></i></div>
                     </div>
                 </div>
                 {% endfor %}
@@ -1114,7 +1235,25 @@
 
 
   {% block js %}
-    <script src="{% static 'web/assets/js/index.js' %}"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          // Ensure all swipers update and slide properly when switching category tabs in Top Class Courses
+          const tabButtons = document.querySelectorAll('#courseTab button[data-bs-toggle="tab"]');
+          tabButtons.forEach(button => {
+              button.addEventListener('shown.bs.tab', function (e) {
+                  window.dispatchEvent(new Event('resize'));
+                  const targetPaneId = button.getAttribute('data-bs-target');
+                  const targetPane = document.querySelector(targetPaneId);
+                  if (targetPane) {
+                      const swiperEl = targetPane.querySelector('.courses-swiper-active');
+                      if (swiperEl && swiperEl.swiper) {
+                          swiperEl.swiper.update();
+                      }
+                  }
+              });
+          });
+      });
+    </script>
   {% endblock %}
   
 {% endblock %}

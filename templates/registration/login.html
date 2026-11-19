@@ -1,77 +1,368 @@
-{% extends 'registration/registration_base.html' %}
-{% load i18n %}
-{% load crispy_forms_tags %}
-{% load static %}
-{% get_current_language as LANGUAGE_CODE %}
-{% block title %}
-  {% trans 'Log in' %}
+{% extends "web/partials/base.html" %}
+{% load static i18n %}
+
+{% block title %}Log In - Interactive Foundation for the Deaf (IFD){% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Sign Language Themed Full-Height Background */
+    .sign-lang-login-area {
+        position: relative;
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+        background: linear-gradient(135deg, #091322 0%, #152744 50%, #0d1b2a 100%);
+        overflow: hidden;
+    }
+
+    /* Ambient Glow Effects */
+    .sign-lang-login-area::before {
+        content: "";
+        position: absolute;
+        top: -150px;
+        left: -150px;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(37, 99, 235, 0) 70%);
+        pointer-events: none;
+    }
+
+    .sign-lang-login-area::after {
+        content: "";
+        position: absolute;
+        bottom: -150px;
+        right: -150px;
+        width: 550px;
+        height: 550px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(56, 189, 248, 0) 70%);
+        pointer-events: none;
+    }
+
+    /* Floating Sign Language Hands Icons (CSS Floating Animations) */
+    .floating-sign-hands {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .sign-hand {
+        position: absolute;
+        opacity: 0.14;
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2));
+        animation: floatHand 12s ease-in-out infinite alternate;
+        color: #ffffff;
+    }
+
+    .sign-hand-1 { top: 12%; left: 8%; font-size: 72px; animation-duration: 9s; transform: rotate(-12deg); }
+    .sign-hand-2 { top: 65%; left: 10%; font-size: 85px; animation-duration: 14s; transform: rotate(15deg); }
+    .sign-hand-3 { top: 18%; right: 9%; font-size: 80px; animation-duration: 11s; transform: rotate(10deg); }
+    .sign-hand-4 { top: 72%; right: 12%; font-size: 90px; animation-duration: 13s; transform: rotate(-15deg); }
+    .sign-hand-5 { top: 45%; left: 3%; font-size: 58px; animation-duration: 8s; }
+    .sign-hand-6 { top: 48%; right: 4%; font-size: 64px; animation-duration: 10s; }
+
+    @keyframes floatHand {
+        0% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-18px) rotate(6deg); }
+        100% { transform: translateY(12px) rotate(-6deg); }
+    }
+
+    /* Clean Card Container Matching Reference Screenshot */
+    .login-card-box {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 440px;
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 42px 36px 36px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Header Title & Subtitle */
+    .login-card-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 6px;
+        letter-spacing: -0.5px;
+    }
+
+    .login-card-subtitle {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 26px;
+        line-height: 1.5;
+    }
+
+    /* Form Fields */
+    .login-form .form-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .login-form .form-control {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 14px;
+        color: #0f172a;
+        background-color: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .login-form .form-control:focus {
+        border-color: #2563eb;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Main Log In Button */
+    .btn-login-main {
+        background-color: #1d4ed8;
+        border: 1px solid #1d4ed8;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 15px;
+        padding: 13px 20px;
+        border-radius: 8px;
+        width: 100%;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        cursor: pointer;
+    }
+
+    .btn-login-main:hover {
+        background-color: #1e40af;
+        border-color: #1e40af;
+        color: #ffffff;
+    }
+
+    .btn-login-main:active {
+        transform: scale(0.99);
+    }
+
+    /* Sign Up Link */
+    .signup-link-wrap {
+        text-align: center;
+        margin-top: 18px;
+        margin-bottom: 18px;
+        font-size: 14px;
+        color: #475569;
+    }
+
+    .signup-link-wrap a {
+        color: #1d4ed8;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .signup-link-wrap a:hover {
+        text-decoration: underline;
+    }
+
+    /* Or Divider */
+    .divider-or-row {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+    }
+
+    .divider-or-row .divider-line {
+        flex-grow: 1;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .divider-or-row .divider-text {
+        padding: 0 16px;
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    /* Continue with Google Button Matching Reference */
+    .btn-google-continue {
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .btn-google-continue:hover {
+        background-color: #f8fafc;
+        border-color: #94a3b8;
+        color: #0f172a;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Password Toggle Icon */
+    .password-toggle-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 4px;
+    }
+    .password-toggle-btn:hover {
+        color: #334155;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-  <section class="log-in-section background-image-2 section-b-space mt-4">
-    <div class="container-fluid-lg w-100">
-      <div class="row">
-        <div class="col-xxl-6 col-xl-5 col-lg-6 d-lg-block d-none ms-auto">
-          <div class="image-contain">
-            <img src="{% static 'web/assets/images/inner-page/log-in.png' %}" class="img-fluid" alt="" />
-          </div>
+<main class="main-area fix">
+    <section class="sign-lang-login-area">
+
+        <!-- Background Floating Sign Language Hands Icons (ISL / Deaf Visual Culture) -->
+        <div class="floating-sign-hands">
+            <!-- 🤟 I Love You Sign -->
+            <div class="sign-hand sign-hand-1" title="I Love You (Sign Language)">
+                <svg width="74" height="74" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.5 2a1.5 1.5 0 0 0-1.5 1.5v7.25l-.78-.78a1.5 1.5 0 0 0-2.12 2.12l4.9 4.9a6 6 0 0 0 8.5 0l1.5-1.5a1.5 1.5 0 0 0-2.12-2.12l-.38.38V4.5A1.5 1.5 0 0 0 18 3a1.5 1.5 0 0 0-1.5 1.5v5.5h-1V3.5A1.5 1.5 0 0 0 14 2a1.5 1.5 0 0 0-1.5 1.5V10h-1V3.5A1.5 1.5 0 0 0 11.5 2z"/>
+                </svg>
+            </div>
+            <!-- ✋ Open Hand / Hello -->
+            <div class="sign-hand sign-hand-2" title="Hello / Peace">
+                <svg width="84" height="84" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2a1.5 1.5 0 0 0-1.5 1.5V11h-1V4.5A1.5 1.5 0 0 0 8 3a1.5 1.5 0 0 0-1.5 1.5v7h-1V6.5A1.5 1.5 0 0 0 4 5a1.5 1.5 0 0 0-1.5 1.5v8.5a7 7 0 0 0 14 0V4.5A1.5 1.5 0 0 0 15 3a1.5 1.5 0 0 0-1.5 1.5V11h-1V3.5A1.5 1.5 0 0 0 12 2z"/>
+                </svg>
+            </div>
+            <!-- ✌️ Victory / Number Two -->
+            <div class="sign-hand sign-hand-3" title="Peace / Two">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 2a1.5 1.5 0 0 0-1.5 1.5v8.25l-.38-.38a1.5 1.5 0 0 0-2.12 2.12l4 4A6 6 0 0 0 17.24 16l.26-.26a1.5 1.5 0 0 0-2.12-2.12L15 14V3.5A1.5 1.5 0 0 0 13.5 2 1.5 1.5 0 0 0 12 3.5V10h-1V3.5A1.5 1.5 0 0 0 9 2z"/>
+                </svg>
+            </div>
+            <!-- 👏 Deaf Visual Applause -->
+            <div class="sign-hand sign-hand-4" title="Deaf Visual Applause">
+                <svg width="88" height="88" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.5 3a1.5 1.5 0 0 0-1.5 1.5v6.5h-1V2.5A1.5 1.5 0 0 0 14.5 1 1.5 1.5 0 0 0 13 2.5V11h-1V4.5A1.5 1.5 0 0 0 10.5 3 1.5 1.5 0 0 0 9 4.5v9l-2.1-2.1a1.5 1.5 0 0 0-2.1 2.1l5.7 5.7A6 6 0 0 0 19 17V4.5A1.5 1.5 0 0 0 18.5 3z"/>
+                </svg>
+            </div>
+            <!-- Sign Alphabet Motif -->
+            <div class="sign-hand sign-hand-5">🤟</div>
+            <div class="sign-hand sign-hand-6">✋</div>
         </div>
 
-        <div class="col-xxl-4 col-xl-5 col-lg-6 col-sm-8 mx-auto">
-          <div class="log-in-box">
-            <div class="log-in-title">
-              <h3>Welcome To Al Zahr</h3>
-              <h4>Log In Your Account</h4>
-            </div>
+        <!-- The Centered Login Card Matching Screenshot -->
+        <div class="login-card-box">
 
-            <div class="input-box">
-              <form method="post" action="">
+            <!-- Title & Subtitle -->
+            <h2 class="login-card-title">Welcome back</h2>
+            <p class="login-card-subtitle">Log in to view your order history and saved details.</p>
+
+            <!-- Django Alert Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} py-2 px-3 small rounded-3 mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Login Form -->
+            <form method="POST" action="{% url 'accounts:login' %}" class="login-form">
                 {% csrf_token %}
-                {{ form|crispy }}
-                <div class="col-12">
-                  <div class="forgot-box">
-                      <div class="form-check ps-0 m-0 remember-box">
-                          <input class="checkbox_animated check-box" type="checkbox"
-                              id="flexCheckDefault">
-                          <label class="form-check-label" for="flexCheckDefault">Remember me</label>
-                      </div>
-                      <a href="{% url 'auth_password_reset' %}" class="forgot-password">{% trans 'Forgot your password?' %}</a>
-                  </div>
-              </div>
+                <input type="hidden" name="next" value="{{ next }}">
 
-                <input type="submit" class="btn btn-animation w-100 justify-content-center mt-3" value="{% trans 'Log in' %}" />
-                <input type="hidden" name="next" value="{{ next }}" />
-              </form>
+                <!-- Username -->
+                <div class="mb-3">
+                    <label class="form-label" for="usernameInput">Username</label>
+                    <input type="text" class="form-control" name="username" id="usernameInput" value="{{ username|default:'' }}" required autocomplete="username" placeholder="">
+                </div>
+
+                <!-- Password -->
+                <div class="mb-4">
+                    <label class="form-label" for="loginPasswordInput">Password</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control pe-5" name="password" id="loginPasswordInput" required autocomplete="current-password" placeholder="">
+                        <button type="button" class="password-toggle-btn" onclick="toggleLoginPassword()" aria-label="Toggle password visibility">
+                            <i class="bi bi-eye" id="passwordEyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Log In Button -->
+                <button type="submit" class="btn-login-main" id="btnSubmitLogin">
+                    Log In
+                </button>
+            </form>
+
+            <!-- Sign Up Link -->
+            <div class="signup-link-wrap">
+                <span>Don't have an account?</span>
+                <a href="{% url 'accounts:signup' %}">Sign up</a>
             </div>
 
-            <div class="other-log-in d-none">
-              <h6>or</h6>
+            <!-- Divider (or) -->
+            <div class="divider-or-row">
+                <div class="divider-line"></div>
+                <div class="divider-text">or</div>
+                <div class="divider-line"></div>
             </div>
 
-            <div class="log-in-button d-none">
-              <ul>
-                <li>
-                  <a href="javascript:valid(0)" class="btn google-button w-100"><img src="{% static 'web/assets/images/inner-page/google.png' %}" class="blur-up lazyload" alt="" /> Log In with Google</a>
-                </li>
-                <li>
-                  <a href="javascript:valid(0)" class="btn google-button w-100"><img src="{% static 'web/assets/images/inner-page/facebook.png' %}" class="blur-up lazyload" alt="" /> Log In with Facebook</a>
-                </li>
-              </ul>
+            <!-- Continue with Google Button Matching Reference Screenshot -->
+            <a href="{% url 'accounts:google_login' %}?next={{ next|urlencode }}" class="btn-google-continue" id="btnGoogleLogin">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Continue with Google</span>
+            </a>
+
+            <!-- Deaf Community & Accessibility Footer Badge -->
+            <div class="text-center mt-4 pt-3 border-top text-muted small" style="font-size: 12px;">
+                <i class="bi bi-universal-access text-primary me-1"></i> Interactive Foundation for the Deaf (IFD)
             </div>
 
-            <div class="other-log-in d-none">
-              <h6></h6>
-            </div>
-
-            <div class="sign-up-box">
-              <h4>Don't have an account?</h4>
-              <a href="{% url 'registration_register' %}">Sign Up</a>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
 
+    </section>
+</main>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+    function toggleLoginPassword() {
+        const input = document.getElementById('loginPasswordInput');
+        const icon = document.getElementById('passwordEyeIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+</script>
 {% endblock %}

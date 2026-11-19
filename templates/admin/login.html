@@ -1,0 +1,267 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{% if form.errors %}{% translate "Error:" %} {% endif %}{{ site_title|default:"IFD Admin" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    body.login {
+        background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 60%, #020617 100%) !important;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0f172a;
+    }
+
+    #container {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding-top: 40px;
+    }
+
+    #header {
+        background: transparent !important;
+        color: #f8fafc !important;
+        border-bottom: none !important;
+        text-align: center;
+        padding-bottom: 10px;
+    }
+
+    #header #branding h1 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.5px;
+    }
+
+    #header #branding h1 a:link, #header #branding h1 a:visited {
+        color: #ffffff !important;
+    }
+
+    .admin-custom-box {
+        max-width: 440px;
+        margin: 20px auto 40px;
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 38px 34px 30px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+        border: 1px solid #e2e8f0;
+    }
+
+    .admin-badge-circle {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 16px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border: 2px solid #eab308;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #facc15;
+        font-size: 26px;
+        box-shadow: 0 6px 16px rgba(234, 179, 8, 0.25);
+    }
+
+    .admin-portal-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+
+    .admin-box-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0 0 6px 0;
+        text-align: center;
+    }
+
+    .admin-box-sub {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 22px;
+        text-align: center;
+    }
+
+    #content-main {
+        float: none !important;
+        margin: 0 !important;
+    }
+
+    .errornote {
+        background: #fef2f2 !important;
+        border: 1px solid #fecaca !important;
+        color: #b91c1c !important;
+        border-radius: 8px !important;
+        font-size: 13px !important;
+        padding: 10px 14px !important;
+        margin-bottom: 18px !important;
+        font-weight: 500 !important;
+    }
+
+    .form-row {
+        padding: 0 0 16px 0 !important;
+        border-bottom: none !important;
+    }
+
+    .form-row label {
+        display: block !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        margin-bottom: 6px !important;
+        float: none !important;
+        text-align: left !important;
+    }
+
+    .form-row input[type="text"],
+    .form-row input[type="password"] {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        padding: 11px 13px !important;
+        font-size: 14px !important;
+        color: #0f172a !important;
+        background-color: #f8fafc !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .form-row input:focus {
+        background-color: #ffffff !important;
+        border-color: #0f172a !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.15) !important;
+    }
+
+    .submit-row {
+        padding: 8px 0 0 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        text-align: center !important;
+    }
+
+    .submit-row input[type="submit"] {
+        width: 100% !important;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        border: 1px solid #0f172a !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        padding: 12px 20px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        height: auto !important;
+        line-height: normal !important;
+    }
+
+    .submit-row input[type="submit"]:hover {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+        color: #facc15 !important;
+        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.3) !important;
+    }
+
+    .admin-ext-links {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #f1f5f9;
+        text-align: center;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .admin-ext-links a {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .admin-ext-links a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="admin-custom-box">
+    <div style="text-align: center;">
+        <div class="admin-badge-circle">
+            🛡️
+        </div>
+        <span class="admin-portal-badge">Restricted Access</span>
+        <h1 class="admin-box-title">IFD Admin Portal</h1>
+        <p class="admin-box-sub">Interactive Foundation for the Deaf</p>
+    </div>
+
+    {% if form.errors and not form.non_field_errors %}
+    <p class="errornote">
+        {% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
+    </p>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <p class="errornote">
+        {{ error }}
+    </p>
+    {% endfor %}
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <p class="errornote">
+        {% blocktranslate trimmed %}
+        You are authenticated as {{ username }}, but are not authorized to access this page. Would you like to login to a different account?
+        {% endblocktranslate %}
+    </p>
+    {% endif %}
+
+    <div id="content-main">
+        <form action="{{ app_path }}" method="post" id="login-form">
+            {% csrf_token %}
+            <div class="form-row">
+                {{ form.username.errors }}
+                <label for="id_username">{% translate 'Username or Email:' %}</label>
+                {{ form.username }}
+            </div>
+            <div class="form-row">
+                {{ form.password.errors }}
+                <label for="id_password">{% translate 'Password:' %}</label>
+                {{ form.password }}
+                <input type="hidden" name="next" value="{{ next }}">
+            </div>
+            {% url 'admin_password_reset' as password_reset_url %}
+            {% if password_reset_url %}
+            <div style="margin-bottom: 12px; font-size: 12px; text-align: right;">
+                <a href="{{ password_reset_url }}" style="color: #64748b; text-decoration: none;">{% translate 'Forgotten your login credentials?' %}</a>
+            </div>
+            {% endif %}
+            <div class="submit-row">
+                <input type="submit" value="{% translate 'Sign In to Admin Dashboard' %}">
+            </div>
+        </form>
+    </div>
+
+    <div class="admin-ext-links">
+        Return to <a href="/">IFD Public Website &rarr;</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1037 @@
+{% extends "web/partials/base.html" %}
+{% load static i18n %}
+
+{% block title %}Student Dashboard - Interactive Foundation for the Deaf (IFD){% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Student Dashboard Styling Matching Reference Screenshot */
+    .dashboard-top-banner {
+        position: relative;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%);
+        border-radius: 16px;
+        padding: 40px 36px;
+        margin-bottom: 35px;
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .dashboard-top-banner::before {
+        content: "";
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0) 70%);
+        pointer-events: none;
+    }
+
+    .dashboard-avatar-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ffffff;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        background: #f1f5f9;
+    }
+
+    .dashboard-user-name {
+        font-size: 26px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .dashboard-meta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #cbd5e1;
+        margin-right: 18px;
+        font-weight: 500;
+    }
+
+    .dashboard-meta-badge i {
+        font-size: 15px;
+        color: #60a5fa;
+    }
+
+    .btn-instructor-pill {
+        background: #f59e0b;
+        color: #000000;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 10px 22px;
+        border-radius: 30px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        border: none;
+    }
+
+    .btn-instructor-pill:hover {
+        background: #d97706;
+        color: #000000;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+
+    /* Sidebar Navigation Box */
+    .dashboard-sidebar-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        padding: 26px 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        margin-bottom: 30px;
+    }
+
+    .dashboard-sidebar-greeting {
+        font-size: 13px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 14px;
+        padding-left: 10px;
+    }
+
+    .dashboard-nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .dashboard-nav-item {
+        margin-bottom: 4px;
+    }
+
+    .dashboard-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 16px;
+        border-radius: 10px;
+        color: #475569;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .dashboard-nav-link i {
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+        color: #94a3b8;
+        transition: color 0.2s ease;
+    }
+
+    .dashboard-nav-link:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+    }
+
+    .dashboard-nav-link:hover i {
+        color: #2563eb;
+    }
+
+    .dashboard-nav-link.active {
+        background: #ede9fe;
+        color: #5b21b6;
+        font-weight: 700;
+    }
+
+    .dashboard-nav-link.active i {
+        color: #6d28d9;
+    }
+
+    /* Counter / KPI Stat Cards */
+    .kpi-stat-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        padding: 24px 20px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kpi-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+    }
+
+    .kpi-circle-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #4f46e5;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+    }
+
+    .kpi-circle-icon.active-icon {
+        background: #2563eb;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+    }
+
+    .kpi-circle-icon.completed-icon {
+        background: #10b981;
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .kpi-number {
+        font-size: 32px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .kpi-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+        margin: 0;
+    }
+
+    /* Section Subtitle */
+    .dashboard-section-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 20px;
+        letter-spacing: -0.3px;
+    }
+
+    /* Course Card Matching Screenshot */
+    .dash-course-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .dash-course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.09);
+    }
+
+    .dash-course-thumb-wrap {
+        position: relative;
+        height: 170px;
+        overflow: hidden;
+        background: #0f172a;
+    }
+
+    .dash-course-thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .dash-course-card:hover .dash-course-thumb {
+        transform: scale(1.04);
+    }
+
+    .dash-course-body {
+        padding: 20px 18px 16px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .dash-category-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 6px;
+        background: #eff6ff;
+        color: #2563eb;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+        align-self: flex-start;
+    }
+
+    .dash-course-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.4;
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .dash-course-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .dash-course-title a:hover {
+        color: #2563eb;
+    }
+
+    .dash-author-rating {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 14px;
+    }
+
+    .dash-author-rating .author-name {
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .dash-author-rating .rating-star {
+        color: #f59e0b;
+        font-weight: 600;
+    }
+
+    /* Progress bar */
+    .dash-progress-wrap {
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .dash-progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+
+    .dash-progress-label span {
+        color: #10b981;
+    }
+
+    .dash-progress-bar-bg {
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 12px;
+    }
+
+    .dash-progress-bar-fill {
+        height: 100%;
+        background: #10b981;
+        border-radius: 10px;
+        transition: width 0.4s ease;
+    }
+
+    .btn-resume-course {
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 9px 14px;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        transition: background 0.2s ease;
+    }
+
+    .btn-resume-course:hover {
+        background: #1d4ed8;
+        color: #ffffff;
+    }
+
+    /* Table styles for Quiz & Orders */
+    .dash-table-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        padding: 24px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+    }
+
+    .dash-custom-table {
+        margin-bottom: 0;
+    }
+
+    .dash-custom-table th {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        border-bottom: 2px solid #f1f5f9;
+        padding: 12px 14px;
+    }
+
+    .dash-custom-table td {
+        font-size: 13px;
+        color: #1e293b;
+        vertical-align: middle;
+        padding: 14px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* Profile Detail Card */
+    .profile-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+    }
+
+    .profile-info-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 16px;
+    }
+
+    .profile-info-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .profile-info-val {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        word-break: break-all;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-area fix" style="background-color: #f8fafc; padding: 40px 0 80px;">
+    <div class="container custom-container">
+
+        <!-- Top Banner Header Matching Screenshot -->
+        <div class="dashboard-top-banner">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center gap-3">
+                        {% if student.photo %}
+                            <img src="{{ student.photo.url }}" alt="{{ student.username }}" class="dashboard-avatar-img">
+                        {% else %}
+                            <div class="dashboard-avatar-img d-flex align-items-center justify-content-center bg-primary text-white fs-3 fw-bold">
+                                {{ student.first_name|default:student.username|slice:":1"|upper }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h2 class="dashboard-user-name">
+                                {{ student.first_name|default:student.username }} {{ student.last_name|default:'' }}
+                            </h2>
+                            <div class="d-flex flex-wrap align-items-center">
+                                <span class="dashboard-meta-badge">
+                                    <i class="bi bi-mortarboard-fill"></i>
+                                    <strong>{{ total_enrolled }}</strong> Courses Enrolled
+                                </span>
+                                <span class="dashboard-meta-badge">
+                                    <i class="bi bi-award-fill"></i>
+                                    <strong>{{ certificates_count }}</strong> Certificates Earned
+                                </span>
+                                <span class="dashboard-meta-badge">
+                                    <i class="bi bi-envelope-fill"></i>
+                                    {{ student.email|default:'student@ifdindia.org' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'web:instructor_dashboard' %}" class="btn-instructor-pill">
+                            <span>Instructor Dashboard</span>
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'web:course_library' %}" class="btn-instructor-pill">
+                            <span>Browse Courses</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Django Messages -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} alert-dismissible fade show rounded-3 py-2 px-3 small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Left Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="dashboard-sidebar-card">
+                    <div class="dashboard-sidebar-greeting">
+                        Welcome, {{ student.first_name|default:student.username }}
+                    </div>
+                    <ul class="dashboard-nav-list">
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'web:student_dashboard' %}?tab=dashboard" class="dashboard-nav-link {% if active_tab == 'dashboard' %}active{% endif %}">
+                                <i class="bi bi-house-door-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'web:student_dashboard' %}?tab=profile" class="dashboard-nav-link {% if active_tab == 'profile' %}active{% endif %}">
+                                <i class="bi bi-person-badge-fill"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'web:student_dashboard' %}?tab=courses" class="dashboard-nav-link {% if active_tab == 'courses' %}active{% endif %}">
+                                <i class="bi bi-journal-bookmark-fill"></i>
+                                <span>Enrolled Courses</span>
+                                {% if total_enrolled > 0 %}
+                                    <span class="badge bg-primary rounded-pill ms-auto small">{{ total_enrolled }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'web:student_dashboard' %}?tab=wishlist" class="dashboard-nav-link {% if active_tab == 'wishlist' %}active{% endif %}">
+                                <i class="bi bi-bookmark-heart-fill"></i>
+                                <span>Wishlist</span>
+                                {% if wishlist_count > 0 %}
+                                    <span class="badge bg-secondary rounded-pill ms-auto small">{{ wishlist_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'web:student_dashboard' %}?tab=reviews" class="dashboard-nav-link {% if active_tab == 'reviews' %}active{% endif %}">
+                                <i class="bi bi-star-fill"></i>
+                                <span>Reviews</span>
+                            </a>
+                        </li>
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'web:student_dashboard' %}?tab=quiz" class="dashboard-nav-link {% if active_tab == 'quiz' %}active{% endif %}">
+                                <i class="bi bi-question-circle-fill"></i>
+                                <span>My Quiz Attempts</span>
+                            </a>
+                        </li>
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'web:student_dashboard' %}?tab=orders" class="dashboard-nav-link {% if active_tab == 'orders' %}active{% endif %}">
+                                <i class="bi bi-receipt"></i>
+                                <span>Order History</span>
+                                {% if orders_count > 0 %}
+                                    <span class="badge bg-info text-dark rounded-pill ms-auto small">{{ orders_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="dashboard-sidebar-greeting mt-4">
+                        User
+                    </div>
+                    <ul class="dashboard-nav-list">
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'web:student_dashboard' %}?tab=settings" class="dashboard-nav-link {% if active_tab == 'settings' %}active{% endif %}">
+                                <i class="bi bi-gear-fill"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                        <li class="dashboard-nav-item">
+                            <a href="{% url 'accounts:logout' %}" class="dashboard-nav-link text-danger">
+                                <i class="bi bi-box-arrow-right text-danger"></i>
+                                <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Content Area -->
+            <div class="col-lg-9">
+
+                <!-- 1. TAB: DASHBOARD (Overview) -->
+                {% if active_tab == 'dashboard' %}
+                    <h3 class="dashboard-section-title">Dashboard</h3>
+
+                    <!-- 3 KPI Counter Cards matching screenshot -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="kpi-stat-card">
+                                <div class="kpi-circle-icon">
+                                    <i class="bi bi-book-half"></i>
+                                </div>
+                                <div>
+                                    <div class="kpi-number">{{ total_enrolled }}</div>
+                                    <div class="kpi-label">Enrolled Courses</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="kpi-stat-card">
+                                <div class="kpi-circle-icon active-icon">
+                                    <i class="bi bi-play-circle-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="kpi-number">{{ active_courses_count }}</div>
+                                    <div class="kpi-label">Active Courses</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="kpi-stat-card">
+                                <div class="kpi-circle-icon completed-icon">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="kpi-number">{{ completed_courses_count }}</div>
+                                    <div class="kpi-label">Completed Courses</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In progress Courses Grid matching screenshot -->
+                    <h4 class="dashboard-section-title mt-2">In Progress Courses</h4>
+                    {% if in_progress_courses %}
+                        <div class="row">
+                            {% for item in in_progress_courses %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="dash-course-card">
+                                        <div class="dash-course-thumb-wrap">
+                                            <img src="{{ item.course.get_image_url }}" alt="{{ item.course.title }}" class="dash-course-thumb">
+                                        </div>
+                                        <div class="dash-course-body">
+                                            <span class="dash-category-badge">{{ item.course.category.name|default:'Course' }}</span>
+                                            <h5 class="dash-course-title">
+                                                <a href="{{ item.play_url }}">{{ item.course.title }}</a>
+                                            </h5>
+                                            <div class="dash-author-rating">
+                                                <span class="author-name">{{ item.course.instructor|default:'IFD Instructor' }}</span>
+                                                <span class="rating-star"><i class="bi bi-star-fill"></i> 4.9</span>
+                                            </div>
+
+                                            <div class="dash-progress-wrap">
+                                                <div class="dash-progress-label">
+                                                    <span>COMPLETE</span>
+                                                    <span>{{ item.percent }}%</span>
+                                                </div>
+                                                <div class="dash-progress-bar-bg">
+                                                    <div class="dash-progress-bar-fill" style="width: {{ item.percent }}%;"></div>
+                                                </div>
+                                                <a href="{{ item.play_url }}" class="btn-resume-course">
+                                                    <i class="bi bi-play-fill me-1"></i> Continue Learning
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="dash-table-card text-center py-5">
+                            <i class="bi bi-mortarboard fs-1 text-muted mb-3 d-block"></i>
+                            <h5 class="fw-bold text-dark">No courses in progress yet</h5>
+                            <p class="text-muted small">Explore our sign language and educational courses to start learning.</p>
+                            <a href="{% url 'web:course_library' %}" class="btn btn-primary btn-sm px-4 py-2 fw-bold rounded-pill">
+                                Explore Courses
+                            </a>
+                        </div>
+                    {% endif %}
+
+                <!-- 2. TAB: MY PROFILE -->
+                {% elif active_tab == 'profile' %}
+                    <h3 class="dashboard-section-title">My Profile</h3>
+                    <div class="dash-table-card">
+                        <div class="d-flex align-items-center gap-3 pb-3 border-bottom">
+                            {% if student.photo %}
+                                <img src="{{ student.photo.url }}" alt="{{ student.username }}" class="dashboard-avatar-img">
+                            {% else %}
+                                <div class="dashboard-avatar-img d-flex align-items-center justify-content-center bg-primary text-white fs-3 fw-bold">
+                                    {{ student.first_name|default:student.username|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h4 class="fw-bold mb-1">{{ student.get_full_name|default:student.username }}</h4>
+                                <span class="badge bg-success-subtle text-success fw-bold px-2 py-1">Active Student</span>
+                                <span class="text-muted small ms-2">Member since {{ student.date_joined|date:"F Y" }}</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-info-grid">
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Full Name</div>
+                                <div class="profile-info-val">{{ student.get_full_name|default:"Not specified" }}</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Username</div>
+                                <div class="profile-info-val">@{{ student.username }}</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Email / Gmail</div>
+                                <div class="profile-info-val">{{ student.email|default:"Not specified" }}</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Phone Number</div>
+                                <div class="profile-info-val">{{ student.phone_number|default:"Not provided" }}</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Account Role</div>
+                                <div class="profile-info-val">{{ student.get_usertype_display|default:"Student" }}</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Total Enrolled</div>
+                                <div class="profile-info-val text-primary">{{ total_enrolled }} Courses</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <a href="{% url 'web:student_dashboard' %}?tab=settings" class="btn btn-primary btn-sm px-4 py-2 fw-bold rounded-pill">
+                                <i class="bi bi-pencil-square me-1"></i> Edit Profile & Settings
+                            </a>
+                        </div>
+                    </div>
+
+                <!-- 3. TAB: ENROLLED COURSES -->
+                {% elif active_tab == 'courses' %}
+                    <h3 class="dashboard-section-title">Enrolled Courses ({{ total_enrolled }})</h3>
+                    {% if enrolled_courses %}
+                        <div class="row">
+                            {% for item in enrolled_courses %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="dash-course-card">
+                                        <div class="dash-course-thumb-wrap">
+                                            <img src="{{ item.course.get_image_url }}" alt="{{ item.course.title }}" class="dash-course-thumb">
+                                        </div>
+                                        <div class="dash-course-body">
+                                            <span class="dash-category-badge">{{ item.course.category.name|default:'Course' }}</span>
+                                            <h5 class="dash-course-title">
+                                                <a href="{{ item.play_url }}">{{ item.course.title }}</a>
+                                            </h5>
+                                            <div class="dash-author-rating">
+                                                <span class="author-name">{{ item.course.instructor|default:'IFD Instructor' }}</span>
+                                                <span class="badge bg-success-subtle text-success">Unlocked & Paid</span>
+                                            </div>
+
+                                            <div class="dash-progress-wrap">
+                                                <div class="dash-progress-label">
+                                                    <span>PROGRESS</span>
+                                                    <span>{{ item.percent }}%</span>
+                                                </div>
+                                                <div class="dash-progress-bar-bg">
+                                                    <div class="dash-progress-bar-fill" style="width: {{ item.percent }}%;"></div>
+                                                </div>
+                                                <a href="{{ item.play_url }}" class="btn-resume-course">
+                                                    <i class="bi bi-play-circle-fill me-1"></i> Resume Course
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="dash-table-card text-center py-5">
+                            <i class="bi bi-journal-x fs-1 text-muted mb-3 d-block"></i>
+                            <h5 class="fw-bold">No courses enrolled yet</h5>
+                            <p class="text-muted small">You haven't enrolled in any courses yet.</p>
+                            <a href="{% url 'web:course_library' %}" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold">Browse Courses</a>
+                        </div>
+                    {% endif %}
+
+                <!-- 4. TAB: WISHLIST -->
+                {% elif active_tab == 'wishlist' %}
+                    <h3 class="dashboard-section-title">My Wishlist ({{ wishlist_count }})</h3>
+                    <div class="dash-table-card">
+                        {% if wishlist_items %}
+                            <div class="table-responsive">
+                                <table class="table dash-custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Price</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in wishlist_items %}
+                                            <tr>
+                                                <td>
+                                                    <span class="fw-bold text-dark">{{ item.product.product.title }}</span>
+                                                </td>
+                                                <td>₹{{ item.product.sale_price }}</td>
+                                                <td>
+                                                    <form method="post" action="{% url 'web:student_dashboard' %}?tab=wishlist" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="remove_wishlist">
+                                                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-trash"></i> Remove
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-heart fs-1 text-muted mb-2 d-block"></i>
+                                <h5 class="fw-bold">Your wishlist is empty</h5>
+                                <p class="text-muted small">Save courses and products to your wishlist to buy them later.</p>
+                                <a href="{% url 'web:course_library' %}" class="btn btn-primary btn-sm rounded-pill fw-bold px-4">Browse Library</a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                <!-- 5. TAB: REVIEWS -->
+                {% elif active_tab == 'reviews' %}
+                    <h3 class="dashboard-section-title">Reviews ({{ reviews_count }})</h3>
+                    <div class="dash-table-card">
+                        {% if user_reviews %}
+                            {% for rev in user_reviews %}
+                                <div class="p-3 border rounded mb-3 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="fw-bold mb-0 text-dark">{{ rev.headline|default:'Review' }}</h6>
+                                        <span class="small text-muted">{{ rev.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                    <div class="text-warning mb-2" style="font-size: 13px;">
+                                        {% for i in "12345" %}
+                                            ★
+                                        {% endfor %}
+                                        <span class="text-dark small ms-1">({{ rev.rating }}/5)</span>
+                                    </div>
+                                    <p class="mb-1 text-secondary small">{{ rev.content }}</p>
+                                    <small class="text-muted">Reviewed on: <strong>{{ rev.product.title }}</strong></small>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-chat-quote fs-1 text-muted mb-2 d-block"></i>
+                                <h5 class="fw-bold">No reviews written yet</h5>
+                                <p class="text-muted small">Share your thoughts and feedback after completing course lessons.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                <!-- 6. TAB: MY QUIZ ATTEMPTS -->
+                {% elif active_tab == 'quiz' %}
+                    <h3 class="dashboard-section-title">My Quiz Attempts</h3>
+                    <div class="dash-table-card">
+                        {% if quiz_attempts %}
+                            <div class="table-responsive">
+                                <table class="table dash-custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Quiz Title</th>
+                                            <th>Course</th>
+                                            <th>Questions</th>
+                                            <th>Score</th>
+                                            <th>Result</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for qa in quiz_attempts %}
+                                            <tr>
+                                                <td class="fw-bold text-dark">{{ qa.quiz_title }}</td>
+                                                <td>{{ qa.course.title|default:'General Assessment' }}</td>
+                                                <td>{{ qa.total_questions }} Qs</td>
+                                                <td>
+                                                    <span class="fw-bold text-primary">{{ qa.earned_marks }}/{{ qa.total_marks }}</span>
+                                                </td>
+                                                <td>
+                                                    {% if qa.result == 'Passed' %}
+                                                        <span class="badge bg-success text-white px-2 py-1">Passed</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning text-dark px-2 py-1">{{ qa.result }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="small text-muted">{{ qa.attempted_at|date:"M d, Y" }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-patch-question fs-1 text-muted mb-2 d-block"></i>
+                                <h5 class="fw-bold">No quiz attempts yet</h5>
+                                <p class="text-muted small">Complete chapters and take quizzes in the course video player to track your scores.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                <!-- 7. TAB: ORDER HISTORY -->
+                {% elif active_tab == 'orders' %}
+                    <h3 class="dashboard-section-title">Order History ({{ orders_count }})</h3>
+                    <div class="dash-table-card">
+                        {% if user_orders %}
+                            <div class="table-responsive">
+                                <table class="table dash-custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Date</th>
+                                            <th>Customer</th>
+                                            <th>Amount</th>
+                                            <th>Payment Method</th>
+                                            <th>Payment Status</th>
+                                            <th>Order Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ord in user_orders %}
+                                            <tr>
+                                                <td>
+                                                    <span class="font-monospace fw-bold text-primary">#{{ ord.order_id }}</span>
+                                                </td>
+                                                <td class="small text-muted">{{ ord.created|date:"M d, Y" }}</td>
+                                                <td class="small">{{ ord.full_name }}</td>
+                                                <td class="fw-bold text-dark">₹{{ ord.payable }}</td>
+                                                <td>
+                                                    {% if ord.payment_method == 'OP' %}
+                                                        <span class="badge bg-primary-subtle text-primary">Online / UPI</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary-subtle text-secondary">{{ ord.payment_method }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if ord.payment_status == 'Success' %}
+                                                        <span class="badge bg-success text-white px-2 py-1">Success</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning text-dark px-2 py-1">{{ ord.payment_status }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border px-2 py-1">{{ ord.order_status }}</span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-bag-check fs-1 text-muted mb-2 d-block"></i>
+                                <h5 class="fw-bold">No orders found</h5>
+                                <p class="text-muted small">When you purchase courses or products, your transaction invoices will appear here.</p>
+                                <a href="{% url 'web:course_library' %}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">Browse Courses</a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                <!-- 8. TAB: SETTINGS -->
+                {% elif active_tab == 'settings' %}
+                    <h3 class="dashboard-section-title">Account Settings</h3>
+
+                    <div class="row">
+                        <!-- Profile Update Form -->
+                        <div class="col-md-6 mb-4">
+                            <div class="dash-table-card h-100">
+                                <h5 class="fw-bold text-dark mb-3">
+                                    <i class="bi bi-person-fill text-primary me-1"></i> Edit Profile
+                                </h5>
+                                <form method="post" action="{% url 'web:student_dashboard' %}?tab=settings" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_profile">
+
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">First Name</label>
+                                        <input type="text" class="form-control" name="first_name" value="{{ student.first_name }}" placeholder="First name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Last Name</label>
+                                        <input type="text" class="form-control" name="last_name" value="{{ student.last_name }}" placeholder="Last name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Email / Gmail</label>
+                                        <input type="email" class="form-control" name="email" value="{{ student.email }}" placeholder="student@gmail.com">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Phone Number</label>
+                                        <input type="text" class="form-control" name="phone_number" value="{{ student.phone_number }}" placeholder="6282134481">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Profile Photo</label>
+                                        <input type="file" class="form-control" name="photo" accept="image/*">
+                                        <small class="text-muted">Upload PNG or JPG avatar image.</small>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary fw-bold w-100 py-2 rounded-3">
+                                        Save Profile Changes
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Change Password Form -->
+                        <div class="col-md-6 mb-4">
+                            <div class="dash-table-card h-100">
+                                <h5 class="fw-bold text-dark mb-3">
+                                    <i class="bi bi-shield-lock-fill text-primary me-1"></i> Change Password
+                                </h5>
+                                <form method="post" action="{% url 'web:student_dashboard' %}?tab=settings">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="change_password">
+
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Current Password</label>
+                                        <input type="password" class="form-control" name="old_password" placeholder="Enter current password" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">New Password</label>
+                                        <input type="password" class="form-control" name="new_password" placeholder="Min 6 characters" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Confirm New Password</label>
+                                        <input type="password" class="form-control" name="confirm_password" placeholder="Re-type new password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-dark fw-bold w-100 py-2 rounded-3 mt-4">
+                                        Update Password
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

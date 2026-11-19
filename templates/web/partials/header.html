@@ -86,12 +86,11 @@
                                                     </ul>
                                                 </li>
                                                 <li class="menu-item-has-children">
-                                                    <a href="shop.html">Shop</a>
+                                                    <a href="{% url 'web:book_list' %}">{% trans "Books & Shop" %}</a>
                                                     <ul class="sub-menu">
-                                                        <li><a href="#">Shop Page</a></li>
-                                                        <li><a href="#">Shop Details</a></li>
-                                                        <li><a href="#">Cart Page</a></li>
-                                                        <li><a href="#">Checkout</a></li>
+                                                        <li><a href="{% url 'web:book_list' %}">{% trans "All Books" %}</a></li>
+                                                        <li><a href="{% url 'web:book_list' %}?price=free">{% trans "Free Learning Books" %}</a></li>
+                                                        <li><a href="{% url 'web:book_list' %}?category=islamic-deaf-studies">{% trans "Deaf Islamic Books" %}</a></li>
                                                     </ul>
                                                 </li>
                                                 <li class="menu-item-has-children">
@@ -179,13 +178,42 @@
                                                 <span class="mini-cart-count">0</span>
                                             </a>
                                         </li> -->
-                                        <li class="header-btn login-btn">
-                                            <a href="login.html">Log in</a>
-                                        </li>
+                                        {% if request.user.is_authenticated %}
+                                            {% if request.user.is_staff or request.user.is_superuser %}
+                                                <li class="header-btn me-2">
+                                                    <a href="/admin/" class="btn btn-warning btn-sm py-2 px-3 fw-bold rounded-pill text-dark" title="Open Admin Dashboard">
+                                                        <i class="bi bi-shield-lock-fill me-1"></i> Admin
+                                                    </a>
+                                                </li>
+                                                <li class="header-btn me-2">
+                                                    <a href="{% url 'web:instructor_dashboard' %}" class="btn btn-outline-primary btn-sm py-2 px-3 fw-bold rounded-pill" title="Instructor Dashboard">
+                                                        <i class="bi bi-mortarboard-fill me-1"></i> Instructor
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            <li class="header-btn me-2">
+                                                <a href="{% url 'web:student_dashboard' %}" class="btn btn-primary btn-sm py-2 px-3 fw-bold rounded-pill text-white" title="My Dashboard">
+                                                    <i class="bi bi-grid-fill me-1"></i> Dashboard
+                                                </a>
+                                            </li>
+                                            <li class="header-btn">
+                                                <a href="{% url 'accounts:logout' %}" class="btn btn-outline-danger btn-sm py-2 px-3 fw-bold rounded-pill text-danger" title="Logged in as {{ request.user.first_name|default:request.user.username }}">
+                                                    <i class="bi bi-person-circle me-1"></i> {{ request.user.first_name|default:request.user.username|truncatechars:12 }} · Logout
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="header-btn login-btn">
+                                                <a href="{% url 'accounts:login' %}">Log in</a>
+                                            </li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                                 <div class="mobile-login-btn">
-                                    <a href="login.html"><img src="{% static 'assets/img/icons/user.svg' %}" alt="" class="injectable"></a>
+                                    {% if request.user.is_authenticated %}
+                                        <a href="{% url 'accounts:logout' %}" title="Logout {{ request.user.username }}"><i class="bi bi-box-arrow-right fs-4 text-danger"></i></a>
+                                    {% else %}
+                                        <a href="{% url 'accounts:login' %}"><img src="{% static 'assets/img/icons/user.svg' %}" alt="" class="injectable"></a>
+                                    {% endif %}
                                 </div>
                                 <div class="mobile-nav-toggler"><i class="tg-flaticon-menu-1 fas fa-bars"></i></div>
                             </nav>

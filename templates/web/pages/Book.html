@@ -1,0 +1,697 @@
+{% extends 'web/partials/base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Books & Learning Materials" %} | IFD Deaf India{% endblock %}
+
+{% block content %}
+<main class="main-area fix">
+
+    <!-- breadcrumb-area -->
+    <section class="breadcrumb__area breadcrumb__bg" data-background="{% static 'assets/img/bg/breadcrumb_bg.jpg' %}" style="background-image: url('{% static 'assets/img/bg/breadcrumb_bg.jpg' %}');">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="breadcrumb__content">
+                        <h3 class="title">{% trans "Shop & Learning Books" %}</h3>
+                        <nav class="breadcrumb">
+                            <span property="itemListElement" typeof="ListItem">
+                                <a href="{% url 'web:index' %}">{% trans "Home" %}</a>
+                            </span>
+                            <span class="breadcrumb-separator"><i class="fas fa-angle-right"></i></span>
+                            <span property="itemListElement" typeof="ListItem">{% trans "Books" %}</span>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="breadcrumb__shape-wrap">
+            <img src="{% static 'assets/img/others/breadcrumb_shape01.svg' %}" alt="img" class="alltuchtopdown">
+            <img src="{% static 'assets/img/others/breadcrumb_shape02.svg' %}" alt="img" data-aos="fade-right" data-aos-delay="300">
+            <img src="{% static 'assets/img/others/breadcrumb_shape03.svg' %}" alt="img" data-aos="fade-up" data-aos-delay="400">
+            <img src="{% static 'assets/img/others/breadcrumb_shape04.svg' %}" alt="img" data-aos="fade-down-left" data-aos-delay="400">
+            <img src="{% static 'assets/img/others/breadcrumb_shape05.svg' %}" alt="img" data-aos="fade-left" data-aos-delay="400">
+        </div>
+    </section>
+    <!-- breadcrumb-area-end -->
+
+    <!-- shop-area -->
+    <section class="shop-area section-py-120" style="padding-top: 60px; padding-bottom: 90px; background-color: #f8f9fa;">
+        <div class="container">
+            <div class="row justify-content-center">
+                
+                <!-- Main Book Catalog Grid (Right side on desktop) -->
+                <div class="col-xl-9 col-lg-8 order-0 order-lg-2">
+                    
+                    <!-- Top Filters & Search Bar -->
+                    <div class="shop-top-wrap" style="background: #ffffff; border-radius: 10px; padding: 18px 24px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid #eaeaea;">
+                        <div class="row align-items-center g-3">
+                            <div class="col-md-5 col-sm-6">
+                                <div class="shop-top-left">
+                                    <p class="mb-0" style="font-weight: 500; color: #4b5563;">
+                                        {% trans "Showing" %} <span class="fw-bold text-dark">{{ page_obj.start_index }}-{{ page_obj.end_index }}</span> {% trans "of" %} <span class="fw-bold text-dark">{{ total_results }}</span> {% trans "Results" %}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-7 col-sm-6">
+                                <div class="d-flex align-items-center justify-content-sm-end gap-3 flex-wrap">
+                                    <!-- Search Input -->
+                                    <form method="get" action="{% url 'web:book_list' %}" class="d-flex align-items-center" style="max-width: 260px;">
+                                        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                                        {% if selected_language %}<input type="hidden" name="language" value="{{ selected_language }}">{% endif %}
+                                        {% if selected_price %}<input type="hidden" name="price" value="{{ selected_price }}">{% endif %}
+                                        {% if selected_rating %}<input type="hidden" name="rating" value="{{ selected_rating }}">{% endif %}
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="q" class="form-control" placeholder="{% trans 'Search books...' %}" value="{{ search_query }}">
+                                            <button class="btn btn-primary" type="submit" style="background: #5b58eb; border-color: #5b58eb;">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                    <!-- Sorting Select -->
+                                    <div class="shop-top-right">
+                                        <form method="get" action="{% url 'web:book_list' %}" id="sortForm">
+                                            {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                                            {% if selected_language %}<input type="hidden" name="language" value="{{ selected_language }}">{% endif %}
+                                            {% if selected_price %}<input type="hidden" name="price" value="{{ selected_price }}">{% endif %}
+                                            {% if selected_rating %}<input type="hidden" name="rating" value="{{ selected_rating }}">{% endif %}
+                                            {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                                            <select name="sort_by" class="form-select form-select-sm" style="border-radius: 6px; border-color: #d1d5db; min-width: 170px;" onchange="this.form.submit()">
+                                                <option value="default" {% if sort_by == 'default' %}selected{% endif %}>{% trans "Default sorting" %}</option>
+                                                <option value="popularity" {% if sort_by == 'popularity' %}selected{% endif %}>{% trans "Sort by popularity" %}</option>
+                                                <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>{% trans "Sort by average rating" %}</option>
+                                                <option value="latest" {% if sort_by == 'latest' %}selected{% endif %}>{% trans "Sort by latest" %}</option>
+                                                <option value="price_low_high" {% if sort_by == 'price_low_high' %}selected{% endif %}>{% trans "Price: Low to High" %}</option>
+                                                <option value="price_high_low" {% if sort_by == 'price_high_low' %}selected{% endif %}>{% trans "Price: High to Low" %}</option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Filter Chips -->
+                    {% if selected_category or selected_language or selected_price or selected_rating or search_query %}
+                    <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
+                        <span class="text-muted small">{% trans "Active filters:" %}</span>
+                        {% if selected_category %}
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                            {% trans "Category:" %} {{ selected_category }}
+                            <a href="?{% if selected_language %}language={{ selected_language }}&{% endif %}{% if selected_price %}price={{ selected_price }}&{% endif %}{% if selected_rating %}rating={{ selected_rating }}&{% endif %}" class="text-danger ms-1 text-decoration-none">&times;</a>
+                        </span>
+                        {% endif %}
+                        {% if selected_language %}
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                            {% trans "Language:" %} {{ selected_language|title }}
+                            <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_price %}price={{ selected_price }}&{% endif %}{% if selected_rating %}rating={{ selected_rating }}&{% endif %}" class="text-danger ms-1 text-decoration-none">&times;</a>
+                        </span>
+                        {% endif %}
+                        {% if selected_price %}
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                            {% trans "Price:" %} {{ selected_price|title }}
+                            <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_language %}language={{ selected_language }}&{% endif %}{% if selected_rating %}rating={{ selected_rating }}&{% endif %}" class="text-danger ms-1 text-decoration-none">&times;</a>
+                        </span>
+                        {% endif %}
+                        {% if selected_rating %}
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                            {% trans "Rating:" %} {{ selected_rating }}+ Stars
+                            <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_language %}language={{ selected_language }}&{% endif %}{% if selected_price %}price={{ selected_price }}&{% endif %}" class="text-danger ms-1 text-decoration-none">&times;</a>
+                        </span>
+                        {% endif %}
+                        {% if search_query %}
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                            {% trans "Query:" %} "{{ search_query }}"
+                            <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_language %}language={{ selected_language }}&{% endif %}{% if selected_price %}price={{ selected_price }}&{% endif %}{% if selected_rating %}rating={{ selected_rating }}&{% endif %}" class="text-danger ms-1 text-decoration-none">&times;</a>
+                        </span>
+                        {% endif %}
+                        <a href="{% url 'web:book_list' %}" class="btn btn-link btn-sm text-danger p-0 ms-2 text-decoration-none font-weight-bold">{% trans "Clear All" %}</a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Books Cards Grid -->
+                    <div class="shop-item-wrap">
+                        <div class="row g-4">
+                            {% for book in products %}
+                            <div class="col-xl-4 col-sm-6">
+                                <div class="shop-item h-100 d-flex flex-column" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 8px; padding: 20px 20px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.25s ease, box-shadow 0.25s ease;">
+                                    
+                                    <!-- Book Thumbnail Area -->
+                                    <div class="shop-thumb position-relative text-center mb-3" style="border-radius: 6px; overflow: hidden; background-color: #f3f4f6; min-height: 290px; display: flex; align-items: center; justify-content: center;">
+                                        
+                                        <!-- Sale/Hot Badge -->
+                                        {% if book.get_badge %}
+                                            <span class="flash-sale {% if book.get_badge == 'Hot!' %}hot{% endif %}" style="position: absolute; top: 12px; left: 12px; z-index: 2; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; letter-spacing: 0.5px; {% if book.get_badge == 'Hot!' %}background: #ff7b00; color: #ffffff;{% else %}background: #5b58eb; color: #ffffff;{% endif %}">
+                                                {{ book.get_badge }}
+                                            </span>
+                                        {% endif %}
+
+                                        <!-- Book Image with Fallback -->
+                                        <a href="javascript:void(0);" onclick="openBookModal('{{ book.id }}', '{{ book.title|escapejs }}', '{{ book.get_display_sale_price }}', '{% if book.image %}{{ book.image.url }}{% else %}{% static 'assets/img/home/book.png' %}{% endif %}', '{{ book.rating }}')" class="d-block w-100">
+                                            <img src="{% if book.image %}{{ book.image.url }}{% else %}{% static 'assets/img/home/book.png' %}{% endif %}" 
+                                                 alt="{{ book.title }}" 
+                                                 class="img-fluid book-cover-img"
+                                                 onerror="this.onerror=null; this.src='{% static 'assets/img/home/book.png' %}';"
+                                                 style="width: 100%; height: 280px; object-fit: cover; border-radius: 4px; transition: opacity 0.3s ease;">
+                                        </a>
+
+                                        <!-- Hover Action Overlay -->
+                                        <ul class="list-wrap shop-action">
+                                            <li>
+                                                <a href="javascript:void(0);" onclick="addToCart('{{ book.id }}', '{{ book.title|escapejs }}')" title="{% trans 'Order / Add to Cart' %}">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void(0);" onclick="toggleWishlist('{{ book.id }}', this)" title="{% trans 'Add to Wishlist' %}">
+                                                    <i class="far fa-heart"></i>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void(0);" onclick="openBookModal('{{ book.id }}', '{{ book.title|escapejs }}', '{{ book.get_display_sale_price }}', '{% if book.image %}{{ book.image.url }}{% else %}{% static 'assets/img/home/book.png' %}{% endif %}', '{{ book.rating }}')" title="{% trans 'Quick View' %}">
+                                                    <i class="far fa-eye"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Book Content / Details -->
+                                    <div class="shop-content text-center mt-auto">
+                                        <h3 class="title mb-2" style="font-size: 17px; font-weight: 700; line-height: 1.4; min-height: 46px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                            <a href="javascript:void(0);" onclick="openBookModal('{{ book.id }}', '{{ book.title|escapejs }}', '{{ book.get_display_sale_price }}', '{% if book.image %}{{ book.image.url }}{% else %}{% static 'assets/img/home/book.png' %}{% endif %}', '{{ book.rating }}')" class="text-dark text-decoration-none hover-primary">
+                                                {{ book.title }}
+                                            </a>
+                                        </h3>
+
+                                        <!-- Rating Stars -->
+                                        <div class="rating d-flex align-items-center justify-content-center gap-1 mb-2">
+                                            <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star text-warning"></i>
+                                            {% if book.rating >= 4.7 %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% elif book.rating >= 4.2 %}
+                                                <i class="fas fa-star-half-alt text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                            <span class="avg ms-1 text-muted" style="font-size: 13px; font-weight: 600;">({{ book.rating|floatformat:2 }})</span>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <h4 class="price mb-0" style="font-size: 18px; font-weight: 700; color: #5b58eb;">
+                                            {{ book.get_display_sale_price }}
+                                            {% if book.get_display_regular_price %}
+                                                <del class="text-muted ms-2" style="font-size: 14px; font-weight: 500; text-decoration: line-through;">{{ book.get_display_regular_price }}</del>
+                                            {% endif %}
+                                        </h4>
+                                    </div>
+
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12 text-center py-5">
+                                <div class="p-5 bg-white rounded-3 shadow-sm border">
+                                    <i class="bi bi-book text-muted" style="font-size: 48px;"></i>
+                                    <h4 class="mt-3">{% trans "No books found matching your criteria" %}</h4>
+                                    <p class="text-muted">{% trans "Try adjusting your filters or search terms." %}</p>
+                                    <a href="{% url 'web:book_list' %}" class="btn btn-primary mt-2" style="background: #5b58eb; border-color: #5b58eb;">
+                                        {% trans "View All Books" %}
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <nav class="pagination__wrap mt-40 d-flex justify-content-center">
+                        <ul class="list-wrap d-flex align-items-center gap-2 list-unstyled">
+                            {% if page_obj.has_previous %}
+                                <li>
+                                    <a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if selected_rating %}&rating={{ selected_rating }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="pagination-btn">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                <li class="{% if page_obj.number == num %}active{% endif %}">
+                                    <a href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if selected_rating %}&rating={{ selected_rating }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="pagination-btn">
+                                        {{ num }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li>
+                                    <a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if selected_rating %}&rating={{ selected_rating }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="pagination-btn">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                </div>
+
+                <!-- Left Sidebar Filters (Left side on desktop) -->
+                <div class="col-xl-3 col-lg-4 order-1 order-lg-1">
+                    <aside class="courses__sidebar" style="background: #ffffff; border-radius: 10px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid #eaeaea;">
+                        
+                        <!-- Categories Widget -->
+                        <div class="courses-widget mb-4">
+                            <h4 class="widget-title mb-3" style="font-size: 18px; font-weight: 700; color: #1f2937; position: relative; padding-bottom: 8px;">
+                                {% trans "Categories" %}
+                                <span style="position: absolute; bottom: 0; left: 0; width: 35px; height: 3px; background: #5b58eb; border-radius: 2px;"></span>
+                            </h4>
+                            <div class="courses-cat-list">
+                                <ul class="list-wrap list-unstyled mb-0" id="categoriesList">
+                                    {% for cat in categories %}
+                                    <li class="category-item mb-2 {% if forloop.counter > 5 %}cat-hidden d-none{% endif %}">
+                                        <div class="form-check d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <input class="form-check-input filter-checkbox" 
+                                                       type="checkbox" 
+                                                       value="{{ cat.slug }}" 
+                                                       id="cat_{{ forloop.counter }}"
+                                                       {% if selected_category == cat.slug %}checked{% endif %}
+                                                       onchange="applyFilter('category', '{{ cat.slug }}', this.checked)">
+                                                <label class="form-check-label ms-2" for="cat_{{ forloop.counter }}" style="cursor: pointer; font-size: 14px; color: #4b5563;">
+                                                    {{ cat.title }}
+                                                </label>
+                                            </div>
+                                            <span class="text-muted small">({{ cat.count }})</span>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% if categories|length > 5 %}
+                                <div class="show-more mt-2">
+                                    <a href="javascript:void(0);" onclick="toggleShowMore('cat')" id="catToggleBtn" style="color: #5b58eb; font-size: 13px; font-weight: 600; text-decoration: none;">
+                                        {% trans "Show More +" %}
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Language Widget -->
+                        <div class="courses-widget mb-4">
+                            <h4 class="widget-title mb-3" style="font-size: 18px; font-weight: 700; color: #1f2937; position: relative; padding-bottom: 8px;">
+                                {% trans "Language" %}
+                                <span style="position: absolute; bottom: 0; left: 0; width: 35px; height: 3px; background: #5b58eb; border-radius: 2px;"></span>
+                            </h4>
+                            <div class="courses-cat-list">
+                                <ul class="list-wrap list-unstyled mb-0" id="languageList">
+                                    {% for lang in languages %}
+                                    <li class="lang-item mb-2 {% if forloop.counter > 4 %}lang-hidden d-none{% endif %}">
+                                        <div class="form-check d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <input class="form-check-input filter-checkbox" 
+                                                       type="checkbox" 
+                                                       value="{{ lang.code }}" 
+                                                       id="lang_{{ forloop.counter }}"
+                                                       {% if selected_language == lang.code %}checked{% endif %}
+                                                       onchange="applyFilter('language', '{{ lang.code }}', this.checked)">
+                                                <label class="form-check-label ms-2" for="lang_{{ forloop.counter }}" style="cursor: pointer; font-size: 14px; color: #4b5563;">
+                                                    {{ lang.name }}
+                                                </label>
+                                            </div>
+                                            {% if lang.code != 'all' %}
+                                                <span class="text-muted small">({{ lang.count }})</span>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% if languages|length > 4 %}
+                                <div class="show-more mt-2">
+                                    <a href="javascript:void(0);" onclick="toggleShowMore('lang')" id="langToggleBtn" style="color: #5b58eb; font-size: 13px; font-weight: 600; text-decoration: none;">
+                                        {% trans "Show More +" %}
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Price Widget -->
+                        <div class="courses-widget mb-4">
+                            <h4 class="widget-title mb-3" style="font-size: 18px; font-weight: 700; color: #1f2937; position: relative; padding-bottom: 8px;">
+                                {% trans "Price" %}
+                                <span style="position: absolute; bottom: 0; left: 0; width: 35px; height: 3px; background: #5b58eb; border-radius: 2px;"></span>
+                            </h4>
+                            <div class="courses-cat-list">
+                                <ul class="list-wrap list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input filter-checkbox" 
+                                                   type="radio" 
+                                                   name="priceFilter" 
+                                                   id="price_all"
+                                                   {% if not selected_price or selected_price == 'all' %}checked{% endif %}
+                                                   onchange="applyFilter('price', 'all', this.checked)">
+                                            <label class="form-check-label ms-2" for="price_all" style="cursor: pointer; font-size: 14px; color: #4b5563;">
+                                                {% trans "All Price" %}
+                                            </label>
+                                        </div>
+                                    </li>
+                                    <li class="mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input filter-checkbox" 
+                                                   type="radio" 
+                                                   name="priceFilter" 
+                                                   id="price_free"
+                                                   {% if selected_price == 'free' %}checked{% endif %}
+                                                   onchange="applyFilter('price', 'free', this.checked)">
+                                            <label class="form-check-label ms-2" for="price_free" style="cursor: pointer; font-size: 14px; color: #4b5563;">
+                                                {% trans "Free" %}
+                                            </label>
+                                        </div>
+                                    </li>
+                                    <li class="mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input filter-checkbox" 
+                                                   type="radio" 
+                                                   name="priceFilter" 
+                                                   id="price_paid"
+                                                   {% if selected_price == 'paid' %}checked{% endif %}
+                                                   onchange="applyFilter('price', 'paid', this.checked)">
+                                            <label class="form-check-label ms-2" for="price_paid" style="cursor: pointer; font-size: 14px; color: #4b5563;">
+                                                {% trans "Paid" %}
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Ratings Widget -->
+                        <div class="courses-widget mb-4">
+                            <h4 class="widget-title mb-3" style="font-size: 18px; font-weight: 700; color: #1f2937; position: relative; padding-bottom: 8px;">
+                                {% trans "Ratings" %}
+                                <span style="position: absolute; bottom: 0; left: 0; width: 35px; height: 3px; background: #5b58eb; border-radius: 2px;"></span>
+                            </h4>
+                            <div class="courses-rating-list">
+                                <ul class="list-wrap list-unstyled mb-0">
+                                    {% for r in ratings %}
+                                    <li class="mb-2">
+                                        <div class="form-check d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-check-input filter-checkbox" 
+                                                       type="checkbox" 
+                                                       value="{{ r.stars }}" 
+                                                       id="rating_{{ r.stars }}"
+                                                       {% if selected_rating == r.stars|stringformat:"i" %}checked{% endif %}
+                                                       onchange="applyFilter('rating', '{{ r.stars }}', this.checked)">
+                                                <div class="rating ms-2 d-flex align-items-center gap-1" style="cursor: pointer;" onclick="document.getElementById('rating_{{ r.stars }}').click();">
+                                                    {% for i in "12345" %}
+                                                        {% if forloop.counter <= r.stars %}
+                                                            <i class="fas fa-star text-warning" style="font-size: 13px;"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-star text-muted" style="font-size: 13px; opacity: 0.35;"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <span class="text-muted small">({{ r.count }})</span>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Reset Button -->
+                        <div class="text-center pt-2">
+                            <a href="{% url 'web:book_list' %}" class="btn btn-outline-secondary btn-sm w-100 rounded-pill" style="font-size: 13px;">
+                                <i class="fas fa-redo-alt me-1"></i> {% trans "Reset All Filters" %}
+                            </a>
+                        </div>
+
+                    </aside>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!-- shop-area-end -->
+
+</main>
+
+<!-- Quick View / Book Order Modal -->
+<div class="modal fade" id="bookQuickModal" tabindex="-1" aria-labelledby="bookQuickModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-0">
+                <div class="row align-items-center g-4">
+                    <div class="col-md-5 text-center">
+                        <img id="modalBookImg" src="" alt="Book Cover" class="img-fluid rounded shadow-sm" style="max-height: 340px; width: auto; object-fit: cover;">
+                    </div>
+                    <div class="col-md-7">
+                        <span class="badge bg-primary px-3 py-2 rounded-pill mb-2" style="background-color: #5b58eb !important;">{% trans "Learning Material" %}</span>
+                        <h3 id="modalBookTitle" class="fw-bold text-dark mb-2" style="font-size: 22px;"></h3>
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="text-warning">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span id="modalBookRating" class="text-muted fw-bold"></span>
+                            <span class="text-muted">| {% trans "Quality Deaf Education Book" %}</span>
+                        </div>
+                        <h4 id="modalBookPrice" class="text-primary fw-bold mb-3" style="color: #5b58eb !important; font-size: 24px;"></h4>
+                        <p class="text-muted mb-4" style="line-height: 1.6; font-size: 14px;">
+                            {% trans "Specially crafted with visual sign language illustrations and structured lessons designed to empower deaf learners and families." %}
+                        </p>
+                        
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a id="modalWhatsAppBtn" href="#" target="_blank" class="btn btn-success px-4 py-2 fw-bold d-flex align-items-center gap-2 rounded-pill" style="background-color: #25d366; border-color: #25d366;">
+                                <i class="fab fa-whatsapp" style="font-size: 18px;"></i> {% trans "Order via WhatsApp" %}
+                            </a>
+                            <button type="button" class="btn btn-outline-primary px-4 py-2 fw-bold rounded-pill" onclick="addToCartModal()" style="border-color: #5b58eb; color: #5b58eb;">
+                                <i class="fas fa-cart-plus me-1"></i> {% trans "Add to Cart" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Toast Notification -->
+<div id="cartToast" class="toast align-items-center text-white bg-dark border-0 position-fixed bottom-0 end-0 m-4 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; border-radius: 8px;">
+    <div class="d-flex">
+        <div class="toast-body d-flex align-items-center gap-2" id="cartToastBody">
+            <i class="fas fa-check-circle text-success fs-5"></i>
+            <span></span>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+</div>
+
+<style>
+/* SkillGro Shop Overrides & Alignment */
+.shop-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.08) !important;
+}
+.shop-thumb .shop-action {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 3;
+    padding: 0;
+    margin: 0;
+}
+.shop-item:hover .shop-thumb .shop-action {
+    opacity: 1;
+    visibility: visible;
+}
+.shop-thumb .shop-action li a {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    color: #1f2937;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.shop-thumb .shop-action li a:hover {
+    background: #5b58eb;
+    color: #ffffff;
+}
+.shop-item:hover .shop-thumb .book-cover-img {
+    opacity: 0.85;
+}
+.hover-primary:hover {
+    color: #5b58eb !important;
+}
+.pagination__wrap ul li.active .pagination-btn {
+    background: #5b58eb;
+    color: #ffffff;
+    border-color: #5b58eb;
+}
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pagination-btn:hover {
+    background: #5b58eb;
+    color: #ffffff;
+    border-color: #5b58eb;
+}
+.form-check-input:checked {
+    background-color: #5b58eb;
+    border-color: #5b58eb;
+}
+</style>
+
+<script>
+// Filter URL Parameter Handler
+function applyFilter(key, value, isChecked) {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    if (key === 'price') {
+        if (value === 'all') {
+            params.delete('price');
+        } else {
+            params.set('price', value);
+        }
+    } else if (key === 'category') {
+        if (isChecked) {
+            params.set('category', value);
+        } else {
+            params.delete('category');
+        }
+    } else if (key === 'language') {
+        if (isChecked && value !== 'all') {
+            params.set('language', value);
+        } else {
+            params.delete('language');
+        }
+    } else if (key === 'rating') {
+        if (isChecked) {
+            params.set('rating', value);
+        } else {
+            params.delete('rating');
+        }
+    }
+    
+    // Reset to page 1 on filter change
+    params.delete('page');
+    
+    window.location.href = `${url.pathname}?${params.toString()}`;
+}
+
+// Show More toggler for sidebar
+function toggleShowMore(type) {
+    if (type === 'cat') {
+        const hiddenCats = document.querySelectorAll('.cat-hidden');
+        const btn = document.getElementById('catToggleBtn');
+        hiddenCats.forEach(item => item.classList.toggle('d-none'));
+        if (btn.innerText.includes('+')) {
+            btn.innerText = '{% trans "Show Less -" %}';
+        } else {
+            btn.innerText = '{% trans "Show More +" %}';
+        }
+    } else if (type === 'lang') {
+        const hiddenLangs = document.querySelectorAll('.lang-hidden');
+        const btn = document.getElementById('langToggleBtn');
+        hiddenLangs.forEach(item => item.classList.toggle('d-none'));
+        if (btn.innerText.includes('+')) {
+            btn.innerText = '{% trans "Show Less -" %}';
+        } else {
+            btn.innerText = '{% trans "Show More +" %}';
+        }
+    }
+}
+
+// Quick View Modal
+let currentBookData = {};
+function openBookModal(id, title, price, imgUrl, rating) {
+    currentBookData = { id, title, price, imgUrl, rating };
+    document.getElementById('modalBookTitle').innerText = title;
+    document.getElementById('modalBookPrice').innerText = price;
+    document.getElementById('modalBookImg').src = imgUrl;
+    document.getElementById('modalBookRating').innerText = `(${parseFloat(rating).toFixed(2)})`;
+    
+    // WhatsApp prefilled message
+    const msg = encodeURIComponent(`Hello IFD India, I would like to order the book: "${title}" (${price}).`);
+    document.getElementById('modalWhatsAppBtn').href = `https://wa.me/919876543210?text=${msg}`;
+    
+    const modalEl = new bootstrap.Modal(document.getElementById('bookQuickModal'));
+    modalEl.show();
+}
+
+function showToast(message, isSuccess = true) {
+    const toastEl = document.getElementById('cartToast');
+    const toastBody = document.getElementById('cartToastBody');
+    toastBody.innerHTML = `
+        <i class="fas ${isSuccess ? 'fa-check-circle text-success' : 'fa-info-circle text-info'} fs-5"></i>
+        <span>${message}</span>
+    `;
+    const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+    toast.show();
+}
+
+function addToCart(id, title) {
+    showToast(`"${title}" added to your cart!`);
+}
+
+function addToCartModal() {
+    if (currentBookData.title) {
+        addToCart(currentBookData.id, currentBookData.title);
+        const modalEl = bootstrap.Modal.getInstance(document.getElementById('bookQuickModal'));
+        if (modalEl) modalEl.hide();
+    }
+}
+
+function toggleWishlist(id, btnEl) {
+    const icon = btnEl.querySelector('i');
+    if (icon) {
+        if (icon.classList.contains('far')) {
+            icon.classList.remove('far');
+            icon.classList.add('fas', 'text-danger');
+            showToast('Book added to your wishlist!');
+        } else {
+            icon.classList.remove('fas', 'text-danger');
+            icon.classList.add('far');
+            showToast('Book removed from your wishlist.', false);
+        }
+    }
+}
+</script>
+{% endblock %}

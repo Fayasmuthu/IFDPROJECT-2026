@@ -196,6 +196,6 @@ SEND_ACTIVATION_EMAIL = False
 REGISTRATION_EMAIL_SUBJECT_PREFIX = ''
 
 REGISTRATION_OPEN = True
-LOGIN_URL = '/accounts/login/'
-LOGOUT_URL = '/accounts/logout/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = 'accounts:login'
+LOGOUT_URL = 'accounts:logout'
+LOGIN_REDIRECT_URL = '/en/course-library/'
